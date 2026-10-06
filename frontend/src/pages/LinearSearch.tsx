@@ -20,7 +20,7 @@ function LinearSearch() {
   const playback = useLogPlayback(speed);
 
   function handleNumbersChange(numbers: number[] | null) {
-    setIsDisabled(!numbers?.length || numbers.length > 12);
+    setIsDisabled(!numbers?.length || numbers.length > 12 || numbers.some((value) => value < 0 || value > 99));
     playback.clearPlayback();
     setList(numbers);
     setCurrentList(numbers ?? []);
@@ -32,7 +32,7 @@ function LinearSearch() {
   const searchRequest: SearchRequest = { list: list ?? [], target: targetNum };
 
   const handleSearch = async () => {
-    if (isDisabled || !list?.length || list.length > 12) return;
+    if (isDisabled || !list?.length || list.length > 12 || list.some((value) => value < 0 || value > 99)) return;
 
     const response = await fetch("/api/search/linear", {
       method: "POST",

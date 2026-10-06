@@ -30,7 +30,7 @@ function NumberDatasetControls({
     if (
       values.length > maxNumberCount ||
       tokens.some((token) => !/^-?\d+$/.test(token)) ||
-      values.some((value) => !Number.isSafeInteger(value))
+      values.some((value) => !Number.isSafeInteger(value) || value < 0 || value > 99)
     ) {
       return null;
     }
@@ -43,7 +43,7 @@ function NumberDatasetControls({
     const values = parseNumbers(value);
     onNumbersChange(values);
     setError(
-      values ? "" : `Enter 1 to ${maxNumberCount} whole numbers, separated by commas or spaces.`
+      values ? "" : `Enter 1 to ${maxNumberCount} whole numbers from 0 to 99, separated by commas or spaces.`
     );
   }
 
