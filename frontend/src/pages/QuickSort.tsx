@@ -9,22 +9,24 @@ import RecursionCallTree from "../components/RecursionCallTree";
 import NumberDatasetControls from "../components/NumberDatasetControls";
 
 function QuickSort() {
-  const [list, setList] = useState([5, 2, 9, 2, 8, 1, 5, 4]);
+  const [list, setList] = useState<number[] | null>([5, 2, 9, 2, 8, 1, 5, 4]);
   const [logMsg, setLogMsg] = useState<string[]>([]);
-  const [currentList, setCurrentList] = useState<number[]>(list);
+  const [currentList, setCurrentList] = useState<number[]>([5, 2, 9, 2, 8, 1, 5, 4]);
   const [calls, setCalls] = useState<RecursiveCall[]>([]);
   const [activeCallId, setActiveCallId] = useState<number | null>(null);
   const [highlight, setHighlight] = useState<number[]>();
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [bgHighlight, setBgHighlight] = useState<number[]>();
   const [speed, setSpeed] = useState(1000);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const playback = useLogPlayback(speed);
 
-  function handleNumbersChange(numbers: number[]) {
+  function handleNumbersChange(numbers: number[] | null) {
+    setIsDisabled(!numbers?.length || numbers.length > 12);
     playback.clearPlayback();
     setList(numbers);
-    setCurrentList(numbers);
+    setCurrentList(numbers ?? []);
     setCalls([]);
     setActiveCallId(null);
     setHighlight([]);
@@ -34,6 +36,8 @@ function QuickSort() {
   }
 
   const handleSort = async () => {
+    if (isDisabled || !list?.length || list.length > 12) return;
+
     const response = await fetch("/api/sort/quick", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -89,7 +93,7 @@ function QuickSort() {
     playback.startPlayback(
       data,
       () => {
-        setCurrentList(list);
+        setCurrentList(list ?? []);
         setCalls([]);
         setActiveCallId(null);
         setHighlight([]);
@@ -105,7 +109,6 @@ function QuickSort() {
     <div className="container">
       <div className="visualiser-container">
         <h1>Quick Sort</h1>
-        <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} />
         <TransformWrapper>
           <TransformComponent>
             <div className="recursive-sort-layout">
@@ -149,7 +152,9 @@ function QuickSort() {
           onTogglePlayback={playback.togglePlayback}
           onStepForward={playback.stepForward}
           onStepBackward={playback.stepBackward}
+          isActionDisabled={isDisabled}
         />
+        <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} maxNumberCount={12} />
       </div>
     </div>
   );

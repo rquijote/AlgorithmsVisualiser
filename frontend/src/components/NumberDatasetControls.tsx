@@ -1,51 +1,60 @@
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import "../styles/visualiser.css";
 
 interface NumberDatasetControlsProps {
-  numbers: number[];
-  onNumbersChange: (numbers: number[]) => void;
+  numbers: number[] | null;
+  onNumbersChange: (numbers: number[] | null) => void;
   sortNumbers?: boolean;
+  maxNumberCount?: number;
 }
-
-const maxNumberCount = 32;
 
 function NumberDatasetControls({
   numbers,
   onNumbersChange,
   sortNumbers = false,
+  maxNumberCount = 32,
 }: NumberDatasetControlsProps) {
   const inputId = useId();
-  const [draft, setDraft] = useState(numbers.join(", "));
+  const [draft, setDraft] = useState(numbers?.join(", ") || "");
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    setDraft(numbers.join(", "));
-  }, [numbers]);
+  function parseNumbers(value: string): number[] | null {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed.startsWith(",") || trimmed.endsWith(",") || /,\s*,/.test(trimmed)) {
+      return null;
+    }
 
-  function applyNumbers(values: number[]) {
-    onNumbersChange(sortNumbers ? [...values].sort((left, right) => left - right) : values);
-    setError("");
-  }
-
-  function handleApply() {
-    const tokens = draft.trim().split(/[\s,]+/).filter(Boolean);
+    const tokens = trimmed.split(/[\s,]+/);
     const values = tokens.map(Number);
 
     if (
-      values.length === 0 ||
       values.length > maxNumberCount ||
+      tokens.some((token) => !/^-?\d+$/.test(token)) ||
       values.some((value) => !Number.isSafeInteger(value))
     ) {
-      setError(`Enter 1 to ${maxNumberCount} whole numbers, separated by commas or spaces.`);
-      return;
+      return null;
     }
 
-    applyNumbers(values);
+    return sortNumbers ? [...values].sort((left, right) => left - right) : values;
+  }
+
+  function handleDraftChange(value: string) {
+    setDraft(value);
+    const values = parseNumbers(value);
+    onNumbersChange(values);
+    setError(
+      values ? "" : `Enter 1 to ${maxNumberCount} whole numbers, separated by commas or spaces.`
+    );
   }
 
   function handleRandomize() {
     const values = Array.from({ length: 8 }, () => Math.floor(Math.random() * 99) + 1);
-    applyNumbers(values);
+    const nextNumbers = sortNumbers
+      ? [...values].sort((left, right) => left - right)
+      : values;
+    setDraft(nextNumbers.join(", "));
+    onNumbersChange(nextNumbers);
+    setError("");
   }
 
   return (
@@ -53,25 +62,13 @@ function NumberDatasetControls({
       <label htmlFor={inputId}>Numbers</label>
       <input
         id={inputId}
-        className="dataset-input"
+        className={`dataset-input${error ? " input-error" : ""}`}
         type="text"
         value={draft}
-        onChange={(event) => {
-          setDraft(event.target.value);
-          setError("");
-        }}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") handleApply();
-        }}
+        onChange={(event) => handleDraftChange(event.target.value)}
+        aria-invalid={!!error}
         aria-describedby={error ? `${inputId}-error` : `${inputId}-hint`}
       />
-      <button
-        className="controlpanel-btn-secondary dataset-button"
-        type="button"
-        onClick={handleApply}
-      >
-        Apply
-      </button>
       <button
         className="controlpanel-btn-secondary dataset-button"
         type="button"

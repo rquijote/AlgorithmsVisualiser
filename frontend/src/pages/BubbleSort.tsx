@@ -9,24 +9,28 @@ import NumberDatasetControls from "../components/NumberDatasetControls";
 
 function BubbleSort() {
   const [logMsg, setLogMsg] = useState<string[]>([]);
-  const [list, setList] = useState([1, 5, 8, 9, 2, 4, 11, 6]);
-  const [currentList, setCurrentList] = useState<number[]>(list);
+  const [list, setList] = useState<number[] | null>([1, 5, 8, 9, 2, 4, 11, 6]);
+  const [currentList, setCurrentList] = useState<number[]>([1, 5, 8, 9, 2, 4, 11, 6]);
   const [highlight, setHighlight] = useState<number[]>();
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [speed, setSpeed] = useState(1000);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const playback = useLogPlayback(speed);
 
-  function handleNumbersChange(numbers: number[]) {
+  function handleNumbersChange(numbers: number[] | null) {
+    setIsDisabled(!numbers?.length || numbers.length > 12);
     playback.clearPlayback();
     setList(numbers);
-    setCurrentList(numbers);
+    setCurrentList(numbers ?? []);
     setHighlight([]);
     setAlertHighlight([]);
     setLogMsg([]);
   }
 
   const handleSort = async () => {
+    if (isDisabled || !list?.length || list.length > 12) return;
+
     const response = await fetch("/api/sort/bubble", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -45,7 +49,7 @@ function BubbleSort() {
     playback.startPlayback(
       data,
       () => {
-        setCurrentList(list);
+        setCurrentList(list ?? []);
         setHighlight([]);
         setAlertHighlight([]);
         setLogMsg([]);
@@ -65,7 +69,6 @@ function BubbleSort() {
         <div className="content-container">
           <div className="visualiser-container">
             <h1>Bubble Sort</h1>
-            <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} />
             <TransformWrapper>
               <TransformComponent>
                 <div className="sorting-wrapper">
@@ -103,7 +106,9 @@ function BubbleSort() {
               onTogglePlayback={playback.togglePlayback}
               onStepForward={playback.stepForward}
               onStepBackward={playback.stepBackward}
+              isActionDisabled={isDisabled}
             />
+            <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} maxNumberCount={12} />
           </div>
         </div>
       </div>

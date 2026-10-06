@@ -5,6 +5,7 @@ interface PanelTypes {
   handleTraverse?: () => void;
   handleSearch?: () => void;
   algorithmType: "sort" | "search" | "pathfind";
+  isActionDisabled?: boolean;
   targetNum?: number;
   setTargetNum?: (num: number) => void;
   speed?: number;
@@ -25,6 +26,7 @@ function ControlPanel({
   handleTraverse,
   handleSearch,
   algorithmType,
+  isActionDisabled,
   targetNum,
   setTargetNum,
   speed,
@@ -75,7 +77,7 @@ function ControlPanel({
           className="controlpanel-btn-secondary"
           onClick={() =>
             setSpeed &&
-            setSpeed((prev) => (prev ? Math.min(prev + 250, 10000) : 250))
+            setSpeed((prev: number) => (prev ? Math.min(prev + 250, 10000) : 250))
           }
         >
           Slower
@@ -85,7 +87,7 @@ function ControlPanel({
           className="controlpanel-btn-secondary"
           onClick={() =>
             setSpeed &&
-            setSpeed((prev) => Math.max(prev - 250, 250))
+            setSpeed((prev: number) => Math.max(prev - 250, 250))
           }
         >
           Faster
@@ -99,7 +101,7 @@ function ControlPanel({
       case "sort":
         return (
           <div className="controlpanel-div">
-            <button className="controlpanel-btn-primary" onClick={handleSort}>
+            <button className="controlpanel-btn-primary" onClick={handleSort} disabled={isActionDisabled}>
               Sort
             </button>
             <div className="playback-controls">
@@ -114,7 +116,7 @@ function ControlPanel({
       case "search":
         return (
           <div className="controlpanel-div">
-            <button className="controlpanel-btn-primary" onClick={handleSearch}>
+            <button className="controlpanel-btn-primary" onClick={handleSearch} disabled={isActionDisabled}>
               Search
             </button>
             <div className="playback-controls">

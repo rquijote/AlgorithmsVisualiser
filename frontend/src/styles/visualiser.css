@@ -94,6 +94,14 @@
     font: inherit;
 }
 
+.dataset-input.input-error {
+    border: 2px solid #a4262c;
+}
+
+.dataset-input.input-error:focus {
+    outline-color: #a4262c;
+}
+
 .dataset-button {
     width: auto;
     min-width: 5rem;

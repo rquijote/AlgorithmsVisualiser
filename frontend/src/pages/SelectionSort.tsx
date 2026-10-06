@@ -8,25 +8,29 @@ import useLogPlayback from "../hooks/useLogPlayback";
 import NumberDatasetControls from "../components/NumberDatasetControls";
 
 function SelectionSort() {
-  const [list, setList] = useState([8, 5, 8, 9, 2, 4, 11, 6]);
+  const [list, setList] = useState<number[] | null>([8, 5, 8, 9, 2, 4, 11, 6]);
   const [logMsg, setLogMsg] = useState<string[]>([]);
-  const [currentList, setCurrentList] = useState<number[]>(list);
+  const [currentList, setCurrentList] = useState<number[]>([8, 5, 8, 9, 2, 4, 11, 6]);
   const [highlight, setHighlight] = useState<number[]>();
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [speed, setSpeed] = useState(1000); // speed state
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const playback = useLogPlayback(speed);
 
-  function handleNumbersChange(numbers: number[]) {
+  function handleNumbersChange(numbers: number[] | null) {
+    setIsDisabled(!numbers?.length || numbers.length > 12);
     playback.clearPlayback();
     setList(numbers);
-    setCurrentList(numbers);
+    setCurrentList(numbers ?? []);
     setHighlight([]);
     setAlertHighlight([]);
     setLogMsg([]);
   }
 
   const handleSort = async () => {
+    if (isDisabled || !list?.length || list.length > 12) return;
+
     const response = await fetch("/api/sort/selection", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -45,7 +49,7 @@ function SelectionSort() {
     playback.startPlayback(
       data,
       () => {
-        setCurrentList(list);
+        setCurrentList(list ?? []);
         setHighlight([]);
         setAlertHighlight([]);
         setLogMsg([]);
@@ -63,7 +67,6 @@ function SelectionSort() {
     <div className="container">
       <div className="visualiser-container">
         <h1>Selection Sort</h1>
-        <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} />
         <TransformWrapper>
           <TransformComponent>
             <div className="sorting-wrapper">
@@ -102,7 +105,9 @@ function SelectionSort() {
           onTogglePlayback={playback.togglePlayback}
           onStepForward={playback.stepForward}
           onStepBackward={playback.stepBackward}
+          isActionDisabled={isDisabled}
         />
+        <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} maxNumberCount={12} />
       </div>
     </div>
   );

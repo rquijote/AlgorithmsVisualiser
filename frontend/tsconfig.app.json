@@ -7,6 +7,7 @@
     "module": "ESNext",
     "types": ["vite/client"],
     "skipLibCheck": true,
+    "composite": true, // Marks that this project can be referenced.
 
     /* Bundler mode */
     "moduleResolution": "bundler",

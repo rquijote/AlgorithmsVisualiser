@@ -8,29 +8,33 @@ import useLogPlayback from "../hooks/useLogPlayback";
 import NumberDatasetControls from "../components/NumberDatasetControls";
 
 function BinarySearch() {
-  const [list, setList] = useState([2, 5, 8, 11, 13, 15, 17, 20, 22, 23]);
+  const [list, setList] = useState<number[] | null>([2, 5, 8, 11, 13, 15, 17, 20, 22, 23]);
   const [logMsg, setLogMsg] = useState<string[]>([]);
-  const [currentList, setCurrentList] = useState<number[]>(list);
+  const [currentList, setCurrentList] = useState<number[]>([2, 5, 8, 11, 13, 15, 17, 20, 22, 23]);
   const [highlight, setHighlight] = useState<number[]>();
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [bgHighlight, setBgHighlight] = useState<number[]>();
   const [targetNum, setTargetNum] = useState<number>(0);
   const [speed, setSpeed] = useState(1000);
+  const [isDisabled, setIsDisabled] = useState(false);
   const playback = useLogPlayback(speed);
 
-  function handleNumbersChange(numbers: number[]) {
+  function handleNumbersChange(numbers: number[] | null) {
+    setIsDisabled(!numbers?.length || numbers.length > 12);
     playback.clearPlayback();
     setList(numbers);
-    setCurrentList(numbers);
+    setCurrentList(numbers ?? []);
     setHighlight([]);
     setAlertHighlight([]);
     setBgHighlight([]);
     setLogMsg([]);
   }
 
-  const searchRequest: SearchRequest = { list, target: targetNum };
+  const searchRequest: SearchRequest = { list: list ?? [], target: targetNum };
 
   const handleSearch = async () => {
+    if (isDisabled || !list?.length || list.length > 12) return;
+
     const response = await fetch("/api/search/binary", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -49,7 +53,7 @@ function BinarySearch() {
     playback.startPlayback(
       data,
       () => {
-        setCurrentList(list);
+        setCurrentList(list ?? []);
         setHighlight([]);
         setAlertHighlight([]);
         setBgHighlight([]);
@@ -69,11 +73,6 @@ function BinarySearch() {
     <div className="container">
       <div className="visualiser-container">
         <h1>Binary Search</h1>
-        <NumberDatasetControls
-          numbers={list}
-          onNumbersChange={handleNumbersChange}
-          sortNumbers
-        />
         <TransformWrapper>
           <TransformComponent>
             <div className="sorting-wrapper">
@@ -120,6 +119,13 @@ function BinarySearch() {
           onTogglePlayback={playback.togglePlayback}
           onStepForward={playback.stepForward}
           onStepBackward={playback.stepBackward}
+          isActionDisabled={isDisabled}
+        />
+        <NumberDatasetControls
+          numbers={list}
+          onNumbersChange={handleNumbersChange}
+          maxNumberCount={12}
+          sortNumbers
         />
       </div>
     </div>
