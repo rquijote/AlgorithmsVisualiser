@@ -1,9 +1,10 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import type { Log } from "../Interfaces";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
 import Logtracker from "../components/LogTracker";
+import useLogPlayback from "../hooks/useLogPlayback";
 
 function InsertionSort() {
   const [logMsg, setLogMsg] = useState<string[]>([]);
@@ -13,7 +14,7 @@ function InsertionSort() {
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [speed, setSpeed] = useState(1000); // speed state
 
-  const timeoutsRef = useRef<number[]>([]);
+  const playback = useLogPlayback(speed);
 
   const handleSort = async () => {
     const response = await fetch("/api/sort/insertion", {
@@ -31,24 +32,21 @@ function InsertionSort() {
   };
 
   function startVisualiser(data: Log[]) {
-    timeoutsRef.current.forEach(clearTimeout);
-    timeoutsRef.current = [];
-
-    setCurrentList(list);
-    setHighlight([]);
-    setAlertHighlight([]);
-    setLogMsg([]);
-
-    data.forEach((log, i) => {
-      const timeout = setTimeout(() => {
+    playback.startPlayback(
+      data,
+      () => {
+        setCurrentList(list);
+        setHighlight([]);
+        setAlertHighlight([]);
+        setLogMsg([]);
+      },
+      (log) => {
         setCurrentList(log.list);
         setHighlight(log.extras?.highlight || []);
         setAlertHighlight(log.extras?.alertHighlight || []);
         setLogMsg((prev) => [...prev, log.msg]);
-      }, i * speed); // use speed here
-
-      timeoutsRef.current.push(timeout);
-    });
+      }
+    );
   }
 
   return (
@@ -84,6 +82,15 @@ function InsertionSort() {
           algorithmType="sort"
           speed={speed}
           setSpeed={setSpeed}
+          isPlaying={playback.isPlaying}
+          hasPlayback={playback.hasPlayback}
+          frameIndex={playback.frameIndex}
+          totalFrames={playback.totalFrames}
+          canStep={playback.canStep}
+          canStepBackward={playback.canStepBackward}
+          onTogglePlayback={playback.togglePlayback}
+          onStepForward={playback.stepForward}
+          onStepBackward={playback.stepBackward}
         />
 
         <Logtracker logMsg={logMsg} />

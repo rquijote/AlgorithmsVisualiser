@@ -1,9 +1,10 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import type { Log, PathfindingRequest } from "../Interfaces";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
 import Logtracker from "../components/LogTracker";
+import useLogPlayback from "../hooks/useLogPlayback";
 
 function BreadthFirstGraph() {
   const [logMsg, setLogMsg] = useState<string[]>([]);
@@ -11,8 +12,8 @@ function BreadthFirstGraph() {
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [bgHighlight, setBgHighlight] = useState<number[]>();
   const [searchNode, setSearchNode] = useState<number>(1);
-  const timeoutsRef = useRef<number[]>([]);
   const [speed, setSpeed] = useState(1000);   
+  const playback = useLogPlayback(speed);
 
   const graph: Record<number, number[]> = {
     1: [2, 7],
@@ -75,23 +76,21 @@ function BreadthFirstGraph() {
   };
 
   function startVisualiser(data: Log[]) {
-    timeoutsRef.current.forEach(clearTimeout);
-    timeoutsRef.current = [];
-    setHighlight([]);
-    setAlertHighlight([]);
-    setBgHighlight([]);
-    setLogMsg([]);
-
-    data.forEach((log, i) => {
-      const timeout = setTimeout(() => {
+    playback.startPlayback(
+      data,
+      () => {
+        setHighlight([]);
+        setAlertHighlight([]);
+        setBgHighlight([]);
+        setLogMsg([]);
+      },
+      (log) => {
         setHighlight(log.extras?.highlight || []);
         setAlertHighlight(log.extras?.alertHighlight || []);
         setBgHighlight(log.extras?.bgHighlight || []);
         setLogMsg((prev) => [...prev, log.msg]);
-      }, i * speed);
-
-      timeoutsRef.current.push(timeout);
-    });
+      }
+    );
   }
 
   return (
@@ -165,6 +164,15 @@ function BreadthFirstGraph() {
           handleTraverse={handleTraverse}
           speed={speed}               
           setSpeed={setSpeed}          
+          isPlaying={playback.isPlaying}
+          hasPlayback={playback.hasPlayback}
+          frameIndex={playback.frameIndex}
+          totalFrames={playback.totalFrames}
+          canStep={playback.canStep}
+          canStepBackward={playback.canStepBackward}
+          onTogglePlayback={playback.togglePlayback}
+          onStepForward={playback.stepForward}
+          onStepBackward={playback.stepBackward}
         />
         <Logtracker logMsg={logMsg} />
       </div>

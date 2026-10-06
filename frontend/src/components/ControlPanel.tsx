@@ -9,6 +9,15 @@ interface PanelTypes {
   setTargetNum?: (num: number) => void;
   speed?: number;
   setSpeed?: React.Dispatch<React.SetStateAction<number>>;
+  isPlaying?: boolean;
+  hasPlayback?: boolean;
+  frameIndex?: number;
+  totalFrames?: number;
+  canStep?: boolean;
+  canStepBackward?: boolean;
+  onTogglePlayback?: () => void;
+  onStepForward?: () => void;
+  onStepBackward?: () => void;
 }
 
 function ControlPanel({
@@ -20,32 +29,66 @@ function ControlPanel({
   setTargetNum,
   speed,
   setSpeed,
+  isPlaying,
+  hasPlayback,
+  frameIndex,
+  totalFrames,
+  canStep,
+  canStepBackward,
+  onTogglePlayback,
+  onStepForward,
+  onStepBackward,
 }: PanelTypes) {
+  function renderPlaybackBtns() {
+    return (
+      <>
+        <button
+          className="controlpanel-btn-secondary"
+          onClick={onStepBackward}
+          disabled={!hasPlayback || !canStepBackward}
+        >
+          Back
+        </button>
+        <button
+          className="controlpanel-btn-secondary"
+          onClick={onTogglePlayback}
+          disabled={!hasPlayback || (!isPlaying && !canStep)}
+        >
+          {isPlaying ? "Pause" : "Play"}
+        </button>
+        <button
+          className="controlpanel-btn-secondary"
+          onClick={onStepForward}
+          disabled={!hasPlayback || !canStep}
+        >
+          Step
+        </button>
+      </>
+    );
+  }
+
   function renderSpeedBtns() {
     return (
       <div className="speed-controls">
+        <span className="control-label">Speed</span>
         <button
           className="controlpanel-btn-secondary"
           onClick={() =>
             setSpeed &&
-            setSpeed((prev) =>
-              prev ? (prev + 250 > 10000 ? 10000 : prev + 250) : 250
-            )
+            setSpeed((prev) => (prev ? Math.min(prev + 250, 10000) : 250))
           }
         >
-          +
+          Slower
         </button>
-        <span>{speed}ms</span>
+        <span className="speed-value">{speed} ms</span>
         <button
           className="controlpanel-btn-secondary"
           onClick={() =>
             setSpeed &&
-            setSpeed((prev) =>
-              prev && prev - 250 < 250 ? 250 : prev - 250
-            )
+            setSpeed((prev) => Math.max(prev - 250, 250))
           }
         >
-          -
+          Faster
         </button>
       </div>
     );
@@ -59,6 +102,12 @@ function ControlPanel({
             <button className="controlpanel-btn-primary" onClick={handleSort}>
               Sort
             </button>
+            <div className="playback-controls">
+              {renderPlaybackBtns()}
+              <span className="frame-count">
+                Frame {frameIndex ?? 0} / {totalFrames ?? 0}
+              </span>
+            </div>
             {renderSpeedBtns()}
           </div>
         );
@@ -68,6 +117,12 @@ function ControlPanel({
             <button className="controlpanel-btn-primary" onClick={handleSearch}>
               Search
             </button>
+            <div className="playback-controls">
+              {renderPlaybackBtns()}
+              <span className="frame-count">
+                Frame {frameIndex ?? 0} / {totalFrames ?? 0}
+              </span>
+            </div>
             <input
               type="number"
               className="controlpanel-input"
@@ -89,6 +144,12 @@ function ControlPanel({
             >
               Traverse
             </button>
+            <div className="playback-controls">
+              {renderPlaybackBtns()}
+              <span className="frame-count">
+                Frame {frameIndex ?? 0} / {totalFrames ?? 0}
+              </span>
+            </div>
             <button
               className="controlpanel-btn-secondary"
               onClick={handleSearch}

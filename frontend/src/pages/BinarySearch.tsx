@@ -1,9 +1,10 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import type { Log, SearchRequest } from "../Interfaces";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
 import Logtracker from "../components/LogTracker";
+import useLogPlayback from "../hooks/useLogPlayback";
 
 function BinarySearch() {
   const list = [2, 5, 8, 11, 13, 15, 17, 20, 22, 23];
@@ -13,8 +14,8 @@ function BinarySearch() {
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [bgHighlight, setBgHighlight] = useState<number[]>();
   const [targetNum, setTargetNum] = useState<number>(0);
-  const timeoutsRef = useRef<number[]>([]);
   const [speed, setSpeed] = useState(1000);
+  const playback = useLogPlayback(speed);
 
   const searchRequest: SearchRequest = { list, target: targetNum };
 
@@ -34,25 +35,23 @@ function BinarySearch() {
   };
 
   function startVisualiser(data: Log[]) {
-    timeoutsRef.current.forEach(clearTimeout);
-    timeoutsRef.current = [];
-    setCurrentList(list);
-    setHighlight([]);
-    setAlertHighlight([]);
-    setBgHighlight([]);
-    setLogMsg([]);
-
-    data.forEach((log, i) => {
-      const timeout = setTimeout(() => {
+    playback.startPlayback(
+      data,
+      () => {
+        setCurrentList(list);
+        setHighlight([]);
+        setAlertHighlight([]);
+        setBgHighlight([]);
+        setLogMsg([]);
+      },
+      (log) => {
         setCurrentList(log.list);
         setHighlight(log.extras?.highlight || []);
         setAlertHighlight(log.extras?.alertHighlight || []);
         setBgHighlight(log.extras?.bgHighlight || []);
         setLogMsg((prev) => [...prev, log.msg]);
-      }, i * speed);
-
-      timeoutsRef.current.push(timeout);
-    });
+      }
+    );
   }
 
   return (
@@ -95,6 +94,15 @@ function BinarySearch() {
           setTargetNum={setTargetNum}
           speed={speed}
           setSpeed={setSpeed}
+          isPlaying={playback.isPlaying}
+          hasPlayback={playback.hasPlayback}
+          frameIndex={playback.frameIndex}
+          totalFrames={playback.totalFrames}
+          canStep={playback.canStep}
+          canStepBackward={playback.canStepBackward}
+          onTogglePlayback={playback.togglePlayback}
+          onStepForward={playback.stepForward}
+          onStepBackward={playback.stepBackward}
         />
         <Logtracker logMsg={logMsg} />
       </div>

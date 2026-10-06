@@ -1,9 +1,10 @@
-﻿import { useState, useRef } from "react";
+﻿import { useState } from "react";
 import type { Log } from "../Interfaces";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
 import Logtracker from "../components/LogTracker";
+import useLogPlayback from "../hooks/useLogPlayback";
 
 function BubbleSort() {
   const [logMsg, setLogMsg] = useState<string[]>([]);
@@ -13,8 +14,7 @@ function BubbleSort() {
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [speed, setSpeed] = useState(1000);
 
-  // Store active timeouts
-  const timeoutsRef = useRef<number[]>([]);
+  const playback = useLogPlayback(speed);
 
   const handleSort = async () => {
     const response = await fetch("/api/sort/bubble", {
@@ -32,26 +32,21 @@ function BubbleSort() {
   };
 
   function startVisualiser(data: Log[]) {
-    // Clear previous timeouts reference from for loop below. To reset on visualise
-    timeoutsRef.current.forEach(clearTimeout);
-    timeoutsRef.current = [];
-
-    // Reset state
-    setCurrentList(list);
-    setHighlight([]);
-    setAlertHighlight([]);
-    setLogMsg([]);
-
-    for (let i = 0; i < data.length; i++) {
-      const timeout = setTimeout(() => {
-        setCurrentList(data[i].list);
-        setHighlight(data[i].extras?.highlight || []);
-        setAlertHighlight(data[i].extras?.alertHighlight || []);
-        setLogMsg((prev) => [...(prev || []), data[i].msg]);
-      }, i * speed);
-
-      timeoutsRef.current.push(timeout);
-    }
+    playback.startPlayback(
+      data,
+      () => {
+        setCurrentList(list);
+        setHighlight([]);
+        setAlertHighlight([]);
+        setLogMsg([]);
+      },
+      (log) => {
+        setCurrentList(log.list);
+        setHighlight(log.extras?.highlight || []);
+        setAlertHighlight(log.extras?.alertHighlight || []);
+        setLogMsg((prev) => [...prev, log.msg]);
+      }
+    );
   }
 
   return (
@@ -87,6 +82,15 @@ function BubbleSort() {
               speed={speed}
               handleSort={handleSort}
               algorithmType="sort"
+              isPlaying={playback.isPlaying}
+              hasPlayback={playback.hasPlayback}
+              frameIndex={playback.frameIndex}
+              totalFrames={playback.totalFrames}
+              canStep={playback.canStep}
+              canStepBackward={playback.canStepBackward}
+              onTogglePlayback={playback.togglePlayback}
+              onStepForward={playback.stepForward}
+              onStepBackward={playback.stepBackward}
             />
             <Logtracker logMsg={logMsg} />
           </div>

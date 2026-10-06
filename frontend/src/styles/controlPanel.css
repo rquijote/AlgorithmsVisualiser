@@ -66,6 +66,12 @@
     background-color: #ededed;
 }
 
+.controlpanel-btn-primary:disabled,
+.controlpanel-btn-secondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .controlpanel-btn-secondary:active {
   box-shadow: rgba(200, 200, 200, 0.3) 0 0 0 1px inset,
               rgba(200, 200, 200, 0.3) 0 6px 15px 0,
@@ -74,20 +80,39 @@
 }
 
 .controlpanel-div {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.playback-controls,
+.speed-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.playback-controls {
+  padding-right: 0.75rem;
+  border-right: 1px solid #d3d3d3;
+}
+
+.frame-count,
+.speed-value {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.control-label {
+  font-weight: 600;
 }
 
 .controlpanel-input {
     border: 1px solid #D3D3D3;
-}
-
-.speed-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px; 
 }
 
 

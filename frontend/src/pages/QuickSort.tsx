@@ -4,6 +4,7 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
 import Logtracker from "../components/LogTracker";
+import useLogPlayback from "../hooks/useLogPlayback";
 
 function QuickSort() {
   const list = [5, 2, 9, 2, 8, 1, 5, 4];
@@ -15,7 +16,7 @@ function QuickSort() {
   const sortingRef = useRef<HTMLDivElement>(null);
   const [speed, setSpeed] = useState(1000);
 
-  const timeoutsRef = useRef<number[]>([]);
+  const playback = useLogPlayback(speed);
 
   const handleSort = async () => {
     const response = await fetch("/api/sort/quick", {
@@ -43,26 +44,23 @@ function QuickSort() {
   }
 
   function startVisualiser(data: Log[]) {
-    timeoutsRef.current.forEach(clearTimeout);
-    timeoutsRef.current = [];
-
-    setAllLogs([]);
-    setHighlight([]);
-    setAlertHighlight([]);
-    setBgHighlight([]);
-    setLogMsg([]);
-
-    for (let i = 0; i < data.length; i++) {
-      const timeout = setTimeout(() => {
-        processLog(data[i]);
-        setHighlight(data[i].extras?.highlight || []);
-        setAlertHighlight(data[i].extras?.alertHighlight || []);
-        setBgHighlight(data[i].extras?.bgHighlight || []);
-        setLogMsg((prev) => [...prev, data[i].msg]);
-      }, i * speed);
-
-      timeoutsRef.current.push(timeout);
-    }
+    playback.startPlayback(
+      data,
+      () => {
+        setAllLogs([]);
+        setHighlight([]);
+        setAlertHighlight([]);
+        setBgHighlight([]);
+        setLogMsg([]);
+      },
+      (log) => {
+        processLog(log);
+        setHighlight(log.extras?.highlight || []);
+        setAlertHighlight(log.extras?.alertHighlight || []);
+        setBgHighlight(log.extras?.bgHighlight || []);
+        setLogMsg((prev) => [...prev, log.msg]);
+      }
+    );
   }
 
   useEffect(() => {
@@ -113,11 +111,20 @@ function QuickSort() {
           </TransformComponent>
         </TransformWrapper>
         <ControlPanel
-  handleSort={handleSort}
-  algorithmType="sort"
-  speed={speed}
-  setSpeed={setSpeed}
-/>
+          handleSort={handleSort}
+          algorithmType="sort"
+          speed={speed}
+          setSpeed={setSpeed}
+          isPlaying={playback.isPlaying}
+          hasPlayback={playback.hasPlayback}
+          frameIndex={playback.frameIndex}
+          totalFrames={playback.totalFrames}
+          canStep={playback.canStep}
+          canStepBackward={playback.canStepBackward}
+          onTogglePlayback={playback.togglePlayback}
+          onStepForward={playback.stepForward}
+          onStepBackward={playback.stepBackward}
+        />
         <Logtracker logMsg={logMsg} />
       </div>
     </div>
