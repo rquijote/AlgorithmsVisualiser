@@ -1,17 +1,19 @@
-import { useState, useRef, useEffect } from "react";
-import type { Log } from "../Interfaces";
+import { useState } from "react";
+import type { Log, RecursiveCall } from "../Interfaces";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
 import Logtracker from "../components/LogTracker";
 import useLogPlayback from "../hooks/useLogPlayback";
+import RecursionCallTree from "../components/RecursionCallTree";
 
 function MergeSort() {
   const list = [5, 2, 9, 2, 8, 1, 5, 14];
   const [logMsg, setLogMsg] = useState<string[]>([]);
-  const [allLogs, setAllLogs] = useState<Log[]>([{ list, msg: "" }]);
+  const [currentList, setCurrentList] = useState<number[]>(list);
+  const [calls, setCalls] = useState<RecursiveCall[]>([]);
+  const [activeCallId, setActiveCallId] = useState<number | null>(null);
   const [highlight, setHighlight] = useState<number[]>();
-  const sortingRef = useRef<HTMLDivElement>(null);
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [speed, setSpeed] = useState(1000);
 
@@ -32,39 +34,56 @@ function MergeSort() {
     }
   };
 
-  function processLog(newLog: Log) {
-    setAllLogs((prev) => {
-      const newDepth = newLog.extras?.depth ?? 0;
-      const updatedLogs = prev.filter(
-        (log) => (log.extras?.depth ?? 0) < newDepth
+  function applyLog(log: Log) {
+    setCurrentList(log.list);
+    setHighlight(log.extras?.highlight || []);
+    setAlertHighlight(log.extras?.alertHighlight || []);
+    setLogMsg((prev) => [...prev, log.msg]);
+
+    const extras = log.extras;
+    if (extras?.callId === undefined || extras.phase === undefined) return;
+
+    const call: RecursiveCall = {
+      callId: extras.callId,
+      parentCallId:
+        extras.parentCallId !== undefined && extras.parentCallId >= 0
+          ? extras.parentCallId
+          : null,
+      depth: extras.depth ?? 0,
+      segmentStart: extras.segmentStart ?? 0,
+      segmentEnd: extras.segmentEnd ?? -1,
+      segmentValues: extras.segmentValues ?? [],
+      phase: extras.phase,
+      message: log.msg,
+    };
+
+    setCalls((previousCalls) => {
+      const existingIndex = previousCalls.findIndex(
+        (existingCall) => existingCall.callId === call.callId
       );
-      return [...updatedLogs, newLog];
+      if (existingIndex === -1) return [...previousCalls, call];
+
+      return previousCalls.map((existingCall, index) =>
+        index === existingIndex ? call : existingCall
+      );
     });
+    setActiveCallId(extras.phase === "complete" ? null : call.callId);
   }
 
   function startVisualiser(data: Log[]) {
     playback.startPlayback(
       data,
       () => {
-        setAllLogs([{ list, msg: "" }]);
+        setCurrentList(list);
+        setCalls([]);
+        setActiveCallId(null);
         setHighlight([]);
-        setLogMsg([]);
         setAlertHighlight([]);
+        setLogMsg([]);
       },
-      (log) => {
-        processLog(log);
-        setHighlight(log.extras?.highlight || []);
-        setAlertHighlight(log.extras?.alertHighlight || []);
-        setLogMsg((prev) => [...prev, log.msg]);
-      }
+      applyLog
     );
   }
-
-  useEffect(() => {
-    if (sortingRef.current) {
-      sortingRef.current.scrollTop = sortingRef.current.scrollHeight;
-    }
-  }, [allLogs]);
 
   return (
     <div className="container">
@@ -72,38 +91,31 @@ function MergeSort() {
         <h1>Merge Sort</h1>
         <TransformWrapper>
           <TransformComponent>
-            <div ref={sortingRef} className="sorting-wrapper-merge-sort">
-              {allLogs.map((log, logIdx) => {
-                return (
-                  <div className="sorting-div-merge-sort" key={logIdx}>
-                    {log.list.map((number, index) => {
-                      const isBottomRow = logIdx === allLogs.length - 1;
-                      const isHighlight =
-                        highlight?.includes(index) && isBottomRow;
-                      const isAlert =
-                        alertHighlight?.includes(index) && isBottomRow;
-
-                      return (
-                        <div
-                          key={index}
-                          className={`sorting-numbox ${
-                            isAlert
-                              ? "alert-highlight"
-                              : isHighlight
-                              ? "highlight"
-                              : ""
-                          }`}
-                        >
-                          {number}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
+            <div className="recursive-sort-layout">
+              <section className="recursion-array-panel">
+                <h2>Current Merge</h2>
+                <div className="recursion-array-values">
+                  {currentList.map((number, index) => (
+                    <div
+                      key={index}
+                      className={`sorting-numbox ${
+                        alertHighlight?.includes(index)
+                          ? "alert-highlight"
+                          : highlight?.includes(index)
+                          ? "highlight"
+                          : ""
+                      }`}
+                    >
+                      {number}
+                    </div>
+                  ))}
+                </div>
+              </section>
+              <RecursionCallTree calls={calls} activeCallId={activeCallId} />
             </div>
           </TransformComponent>
         </TransformWrapper>
+        <Logtracker logMsg={logMsg} />
         <ControlPanel
           handleSort={handleSort}
           algorithmType="sort"
@@ -119,7 +131,6 @@ function MergeSort() {
           onStepForward={playback.stepForward}
           onStepBackward={playback.stepBackward}
         />
-        <Logtracker logMsg={logMsg} />
       </div>
     </div>
   );

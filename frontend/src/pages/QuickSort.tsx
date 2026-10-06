@@ -1,19 +1,21 @@
-import { useState, useRef, useEffect } from "react";
-import type { Log } from "../Interfaces";
+import { useState } from "react";
+import type { Log, RecursiveCall } from "../Interfaces";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
 import Logtracker from "../components/LogTracker";
 import useLogPlayback from "../hooks/useLogPlayback";
+import RecursionCallTree from "../components/RecursionCallTree";
 
 function QuickSort() {
   const list = [5, 2, 9, 2, 8, 1, 5, 4];
   const [logMsg, setLogMsg] = useState<string[]>([]);
-  const [allLogs, setAllLogs] = useState<Log[]>([{ list, msg: "" }]);
+  const [currentList, setCurrentList] = useState<number[]>(list);
+  const [calls, setCalls] = useState<RecursiveCall[]>([]);
+  const [activeCallId, setActiveCallId] = useState<number | null>(null);
   const [highlight, setHighlight] = useState<number[]>();
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [bgHighlight, setBgHighlight] = useState<number[]>();
-  const sortingRef = useRef<HTMLDivElement>(null);
   const [speed, setSpeed] = useState(1000);
 
   const playback = useLogPlayback(speed);
@@ -33,41 +35,58 @@ function QuickSort() {
     }
   };
 
-  function processLog(newLog: Log) {
-    setAllLogs((prev) => {
-      const newDepth = newLog.extras?.depth ?? 0;
-      const updatedLogs = prev.filter(
-        (log) => (log.extras?.depth ?? 0) < newDepth
+  function applyLog(log: Log) {
+    setCurrentList(log.list);
+    setHighlight(log.extras?.highlight || []);
+    setAlertHighlight(log.extras?.alertHighlight || []);
+    setBgHighlight(log.extras?.bgHighlight || []);
+    setLogMsg((prev) => [...prev, log.msg]);
+
+    const extras = log.extras;
+    if (extras?.callId === undefined || extras.phase === undefined) return;
+
+    const call: RecursiveCall = {
+      callId: extras.callId,
+      parentCallId:
+        extras.parentCallId !== undefined && extras.parentCallId >= 0
+          ? extras.parentCallId
+          : null,
+      depth: extras.depth ?? 0,
+      segmentStart: extras.segmentStart ?? 0,
+      segmentEnd: extras.segmentEnd ?? -1,
+      segmentValues: extras.segmentValues ?? [],
+      phase: extras.phase,
+      message: log.msg,
+    };
+
+    setCalls((previousCalls) => {
+      const existingIndex = previousCalls.findIndex(
+        (existingCall) => existingCall.callId === call.callId
       );
-      return [...updatedLogs, newLog];
+      if (existingIndex === -1) return [...previousCalls, call];
+
+      return previousCalls.map((existingCall, index) =>
+        index === existingIndex ? call : existingCall
+      );
     });
+    setActiveCallId(extras.phase === "complete" ? null : call.callId);
   }
 
   function startVisualiser(data: Log[]) {
     playback.startPlayback(
       data,
       () => {
-        setAllLogs([]);
+        setCurrentList(list);
+        setCalls([]);
+        setActiveCallId(null);
         setHighlight([]);
         setAlertHighlight([]);
         setBgHighlight([]);
         setLogMsg([]);
       },
-      (log) => {
-        processLog(log);
-        setHighlight(log.extras?.highlight || []);
-        setAlertHighlight(log.extras?.alertHighlight || []);
-        setBgHighlight(log.extras?.bgHighlight || []);
-        setLogMsg((prev) => [...prev, log.msg]);
-      }
+      applyLog
     );
   }
-
-  useEffect(() => {
-    if (sortingRef.current) {
-      sortingRef.current.scrollTop = sortingRef.current.scrollHeight;
-    }
-  }, [allLogs]);
 
   return (
     <div className="container">
@@ -75,41 +94,33 @@ function QuickSort() {
         <h1>Quick Sort</h1>
         <TransformWrapper>
           <TransformComponent>
-            <div ref={sortingRef} className="sorting-wrapper-merge-sort">
-              {allLogs.map((log, logIdx) => {
-                const isBottomRow = logIdx === allLogs.length - 1;
-                return (
-                  <div className="sorting-div-merge-sort" key={logIdx}>
-                    {log.list.map((number, index) => {
-                      const isHighlight =
-                        highlight?.includes(index) && isBottomRow;
-                      const isAlert =
-                        alertHighlight?.includes(index) && isBottomRow;
-                      const isBg = bgHighlight?.includes(index) && isBottomRow;
-
-                      return (
-                        <div
-                          key={index}
-                          className={`sorting-numbox ${
-                            isAlert
-                              ? "alert-highlight"
-                              : isHighlight
-                              ? "highlight"
-                              : isBg
-                              ? "bg-highlight"
-                              : ""
-                          }`}
-                        >
-                          {number}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
+            <div className="recursive-sort-layout">
+              <section className="recursion-array-panel">
+                <h2>Current Array</h2>
+                <div className="recursion-array-values">
+                  {currentList.map((number, index) => (
+                    <div
+                      key={index}
+                      className={`sorting-numbox ${
+                        alertHighlight?.includes(index)
+                          ? "alert-highlight"
+                          : highlight?.includes(index)
+                          ? "highlight"
+                          : bgHighlight?.includes(index)
+                          ? "bg-highlight"
+                          : ""
+                      }`}
+                    >
+                      {number}
+                    </div>
+                  ))}
+                </div>
+              </section>
+              <RecursionCallTree calls={calls} activeCallId={activeCallId} />
             </div>
           </TransformComponent>
         </TransformWrapper>
+        <Logtracker logMsg={logMsg} />
         <ControlPanel
           handleSort={handleSort}
           algorithmType="sort"
@@ -125,7 +136,6 @@ function QuickSort() {
           onStepForward={playback.stepForward}
           onStepBackward={playback.stepBackward}
         />
-        <Logtracker logMsg={logMsg} />
       </div>
     </div>
   );

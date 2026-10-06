@@ -54,4 +54,18 @@ public class QuickSortTest
         Assert.IsNotNull(logList);
         Assert.AreNotEqual(0, logList.Count);
     }
+
+    [TestMethod]
+    public void Quick_Sort_Log_Tracks_Base_Cases_And_Returns()
+    {
+        List<int> input = new List<int> { 6, 3, 8, 9, 2 };
+        quickSort.Sort(input);
+        List<Log> logList = quickSort.GetLog();
+
+        Assert.IsTrue(logList.Any(log => Equals(log.Extras["phase"], "base-case")));
+        Assert.IsTrue(logList.Any(log => Equals(log.Extras["phase"], "return-left")));
+        Assert.IsTrue(logList.Any(log => Equals(log.Extras["phase"], "return-right")));
+        Assert.IsTrue(logList.Where(log => log.Extras.ContainsKey("phase"))
+            .All(log => log.Extras.ContainsKey("callId") && log.Extras.ContainsKey("parentCallId")));
+    }
 }

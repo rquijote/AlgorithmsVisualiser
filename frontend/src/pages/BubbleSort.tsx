@@ -77,6 +77,7 @@ function BubbleSort() {
                 </div>
               </TransformComponent>
             </TransformWrapper>
+            <Logtracker logMsg={logMsg} />
             <ControlPanel
               setSpeed={setSpeed}
               speed={speed}
@@ -92,7 +93,6 @@ function BubbleSort() {
               onStepForward={playback.stepForward}
               onStepBackward={playback.stepBackward}
             />
-            <Logtracker logMsg={logMsg} />
           </div>
         </div>
       </div>

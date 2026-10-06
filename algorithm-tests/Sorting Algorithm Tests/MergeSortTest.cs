@@ -54,4 +54,19 @@ public class MergeSortTest
         Assert.IsNotNull(logList);
         Assert.AreNotEqual(0, logList.Count);
     }
+
+    [TestMethod]
+    public void Merge_Sort_Log_Tracks_Base_Cases_Returns_And_Merges()
+    {
+        List<int> input = new List<int> { 6, 3, 8, 9, 2 };
+        mergeSort.Sort(input);
+        List<Log> logList = mergeSort.GetLog();
+
+        Assert.IsTrue(logList.Any(log => Equals(log.Extras["phase"], "base-case")));
+        Assert.IsTrue(logList.Any(log => Equals(log.Extras["phase"], "return-left")));
+        Assert.IsTrue(logList.Any(log => Equals(log.Extras["phase"], "return-right")));
+        Assert.IsTrue(logList.Any(log => Equals(log.Extras["phase"], "merge-complete")));
+        Assert.IsTrue(logList.Where(log => log.Extras.ContainsKey("phase"))
+            .All(log => log.Extras.ContainsKey("callId") && log.Extras.ContainsKey("parentCallId")));
+    }
 }

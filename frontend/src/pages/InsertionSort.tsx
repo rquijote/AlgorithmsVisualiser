@@ -75,6 +75,7 @@ function InsertionSort() {
             </div>
           </TransformComponent>
         </TransformWrapper>
+        <Logtracker logMsg={logMsg} />
 
         {/* Pass speed and setSpeed to ControlPanel */}
         <ControlPanel
@@ -92,8 +93,6 @@ function InsertionSort() {
           onStepForward={playback.stepForward}
           onStepBackward={playback.stepBackward}
         />
-
-        <Logtracker logMsg={logMsg} />
       </div>
     </div>
   );

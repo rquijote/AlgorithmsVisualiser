@@ -157,6 +157,7 @@ function BreadthFirstGraph() {
             </div>
           </TransformComponent>
         </TransformWrapper>
+        <Logtracker logMsg={logMsg} />
         <ControlPanel
           algorithmType="pathfind"
           setTargetNum={setSearchNode}
@@ -174,7 +175,6 @@ function BreadthFirstGraph() {
           onStepForward={playback.stepForward}
           onStepBackward={playback.stepBackward}
         />
-        <Logtracker logMsg={logMsg} />
       </div>
     </div>
   );

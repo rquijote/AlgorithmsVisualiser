@@ -88,6 +88,7 @@ function BinarySearch() {
             </div>
           </TransformComponent>
         </TransformWrapper>
+        <Logtracker logMsg={logMsg} />
         <ControlPanel
           algorithmType="search"
           handleSearch={handleSearch}
@@ -104,7 +105,6 @@ function BinarySearch() {
           onStepForward={playback.stepForward}
           onStepBackward={playback.stepBackward}
         />
-        <Logtracker logMsg={logMsg} />
       </div>
     </div>
   );

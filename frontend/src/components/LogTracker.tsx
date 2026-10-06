@@ -1,21 +1,7 @@
-import { useEffect, useRef } from "react";
-
 function Logtracker({ logMsg }: { logMsg: string[] }) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const message = logMsg.length > 0 ? logMsg[logMsg.length - 1] : "Ready to run.";
 
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight;
-    }
-  }, [logMsg]);
-
-  return (
-    <div ref={containerRef} className="log-tracker">
-      {logMsg?.map((msg, idx) => (
-        <p key={idx}>{msg}</p>
-      ))}{" "}
-    </div>
-  );
+  return <p className="algorithm-step-message" role="status" aria-live="polite">{message}</p>;
 }
 
 export default Logtracker;

@@ -75,6 +75,7 @@ function SelectionSort() {
             </div>
           </TransformComponent>
         </TransformWrapper>
+        <Logtracker logMsg={logMsg} />
 
         <ControlPanel
           handleSort={handleSort}
@@ -91,8 +92,6 @@ function SelectionSort() {
           onStepForward={playback.stepForward}
           onStepBackward={playback.stepBackward}
         />
-
-        <Logtracker logMsg={logMsg} />
       </div>
     </div>
   );
