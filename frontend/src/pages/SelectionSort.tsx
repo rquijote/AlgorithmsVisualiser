@@ -5,22 +5,32 @@ import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
 import Logtracker from "../components/LogTracker";
 import useLogPlayback from "../hooks/useLogPlayback";
+import NumberDatasetControls from "../components/NumberDatasetControls";
 
 function SelectionSort() {
-  const initialList = [8, 5, 8, 9, 2, 4, 11, 6];
+  const [list, setList] = useState([8, 5, 8, 9, 2, 4, 11, 6]);
   const [logMsg, setLogMsg] = useState<string[]>([]);
-  const [currentList, setCurrentList] = useState<number[]>(initialList);
+  const [currentList, setCurrentList] = useState<number[]>(list);
   const [highlight, setHighlight] = useState<number[]>();
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [speed, setSpeed] = useState(1000); // speed state
 
   const playback = useLogPlayback(speed);
 
+  function handleNumbersChange(numbers: number[]) {
+    playback.clearPlayback();
+    setList(numbers);
+    setCurrentList(numbers);
+    setHighlight([]);
+    setAlertHighlight([]);
+    setLogMsg([]);
+  }
+
   const handleSort = async () => {
     const response = await fetch("/api/sort/selection", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(initialList),
+      body: JSON.stringify(list),
     });
 
     if (response.ok) {
@@ -35,7 +45,7 @@ function SelectionSort() {
     playback.startPlayback(
       data,
       () => {
-        setCurrentList(initialList);
+        setCurrentList(list);
         setHighlight([]);
         setAlertHighlight([]);
         setLogMsg([]);
@@ -53,6 +63,7 @@ function SelectionSort() {
     <div className="container">
       <div className="visualiser-container">
         <h1>Selection Sort</h1>
+        <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} />
         <TransformWrapper>
           <TransformComponent>
             <div className="sorting-wrapper">

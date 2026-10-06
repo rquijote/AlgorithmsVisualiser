@@ -5,16 +5,26 @@ import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
 import Logtracker from "../components/LogTracker";
 import useLogPlayback from "../hooks/useLogPlayback";
+import NumberDatasetControls from "../components/NumberDatasetControls";
 
 function InsertionSort() {
   const [logMsg, setLogMsg] = useState<string[]>([]);
-  const list = [1, 5, 8, 9, 2, 4, 11, 6];
+  const [list, setList] = useState([1, 5, 8, 9, 2, 4, 11, 6]);
   const [currentList, setCurrentList] = useState<number[]>(list);
   const [highlight, setHighlight] = useState<number[]>();
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [speed, setSpeed] = useState(1000); // speed state
 
   const playback = useLogPlayback(speed);
+
+  function handleNumbersChange(numbers: number[]) {
+    playback.clearPlayback();
+    setList(numbers);
+    setCurrentList(numbers);
+    setHighlight([]);
+    setAlertHighlight([]);
+    setLogMsg([]);
+  }
 
   const handleSort = async () => {
     const response = await fetch("/api/sort/insertion", {
@@ -53,6 +63,7 @@ function InsertionSort() {
     <div className="container">
       <div className="visualiser-container">
         <h1>Insertion Sort</h1>
+        <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} />
         <TransformWrapper>
           <TransformComponent>
             <div className="sorting-wrapper">

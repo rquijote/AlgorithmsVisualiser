@@ -6,9 +6,10 @@ import ControlPanel from "../components/ControlPanel";
 import Logtracker from "../components/LogTracker";
 import useLogPlayback from "../hooks/useLogPlayback";
 import RecursionCallTree from "../components/RecursionCallTree";
+import NumberDatasetControls from "../components/NumberDatasetControls";
 
 function MergeSort() {
-  const list = [5, 2, 9, 2, 8, 1, 5, 14];
+  const [list, setList] = useState([5, 2, 9, 2, 8, 1, 5, 14]);
   const [logMsg, setLogMsg] = useState<string[]>([]);
   const [currentList, setCurrentList] = useState<number[]>(list);
   const [calls, setCalls] = useState<RecursiveCall[]>([]);
@@ -18,6 +19,17 @@ function MergeSort() {
   const [speed, setSpeed] = useState(1000);
 
   const playback = useLogPlayback(speed);
+
+  function handleNumbersChange(numbers: number[]) {
+    playback.clearPlayback();
+    setList(numbers);
+    setCurrentList(numbers);
+    setCalls([]);
+    setActiveCallId(null);
+    setHighlight([]);
+    setAlertHighlight([]);
+    setLogMsg([]);
+  }
 
   const handleSort = async () => {
     const response = await fetch("/api/sort/merge", {
@@ -89,6 +101,7 @@ function MergeSort() {
     <div className="container">
       <div className="visualiser-container">
         <h1>Merge Sort</h1>
+        <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} />
         <TransformWrapper>
           <TransformComponent>
             <div className="recursive-sort-layout">

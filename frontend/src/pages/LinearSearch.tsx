@@ -5,10 +5,11 @@ import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
 import Logtracker from "../components/LogTracker";
 import useLogPlayback from "../hooks/useLogPlayback";
+import NumberDatasetControls from "../components/NumberDatasetControls";
 
 function LinearSearch() {
   const [logMsg, setLogMsg] = useState<string[]>([]);
-  const list = [2, 5, 8, 11, 13, 15, 17, 20, 22, 23];
+  const [list, setList] = useState([2, 5, 8, 11, 13, 15, 17, 20, 22, 23]);
   const [currentList, setCurrentList] = useState<number[]>(list);
   const [highlight, setHighlight] = useState<number[]>();
   const [targetNum, setTargetNum] = useState<number>(0);
@@ -16,6 +17,15 @@ function LinearSearch() {
   const [speed, setSpeed] = useState(1000);
 
   const playback = useLogPlayback(speed);
+
+  function handleNumbersChange(numbers: number[]) {
+    playback.clearPlayback();
+    setList(numbers);
+    setCurrentList(numbers);
+    setHighlight([]);
+    setAlertHighlight([]);
+    setLogMsg([]);
+  }
 
   const searchRequest: SearchRequest = { list, target: targetNum };
 
@@ -56,6 +66,7 @@ function LinearSearch() {
     <div className="container">
       <div className="visualiser-container">
         <h1>Linear Search</h1>
+        <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} />
         <TransformWrapper>
           <TransformComponent>
             <div className="sorting-wrapper">

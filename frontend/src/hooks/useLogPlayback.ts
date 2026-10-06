@@ -72,6 +72,15 @@ function useLogPlayback(speed: number) {
     setFrameIndex(previousFrameCount);
   }
 
+  function clearPlayback() {
+    logsRef.current = [];
+    nextIndexRef.current = 0;
+    setIsPlaying(false);
+    setHasPlayback(false);
+    setFrameIndex(0);
+    setPlaybackId((id) => id + 1);
+  }
+
   return {
     isPlaying,
     hasPlayback,
@@ -83,6 +92,7 @@ function useLogPlayback(speed: number) {
     togglePlayback,
     stepForward,
     stepBackward,
+    clearPlayback,
   };
 }
 
