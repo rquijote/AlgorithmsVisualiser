@@ -283,8 +283,8 @@ function CompareAlgorithms() {
   const [leftAlgorithmId, setLeftAlgorithmId] = useState(DEFAULT_SELECTIONS.sort[0]);
   const [rightAlgorithmId, setRightAlgorithmId] = useState(DEFAULT_SELECTIONS.sort[1]);
   const [numbers, setNumbers] = useState<number[] | null>(randomizeNumbers(12));
-  const [targetDraft, setTargetDraft] = useState("20");
-  const [targetNum, setTargetNum] = useState(20);
+  const [targetDraft, setTargetDraft] = useState("0");
+  const [targetNum, setTargetNum] = useState(0);
   const [compareToken, setCompareToken] = useState(0);
 
   const algorithms = compareMode === "sort" ? SORT_ALGORITHMS : SEARCH_ALGORITHMS;

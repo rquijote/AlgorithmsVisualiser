@@ -187,15 +187,19 @@ function ControlPanel({
             >
               Search
             </button>
-            <input
-              type="number"
-              className="controlpanel-input"
-              value={targetNum}
-              onChange={(e) =>
-                setTargetNum && setTargetNum(Number(e.target.value))
-              }
-              min={1}
-            />
+            <div className="target-control">
+              <label htmlFor={targetInputId} className="control-label">Target</label>
+              <input
+                id={targetInputId}
+                type="number"
+                className="dataset-input"
+                value={targetNum}
+                onChange={(e) =>
+                  setTargetNum && setTargetNum(Number(e.target.value))
+                }
+                min={0}
+              />
+            </div>
             {renderSpeedBtns()}
           </div>
         );

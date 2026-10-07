@@ -169,13 +169,13 @@ export function buildGraphFromRows(rows: GraphCreatorRow[], rootDraft: string): 
 
     visited.add(current.node);
 
-    if (current.level > 4) {
+    if (current.level > 8) {
       return {
         graph,
         root,
         positions: {},
         levelCount: 0,
-        error: "The graph can have at most 4 levels from the root.",
+        error: "The graph can have at most 8 levels from the root.",
         isValid: false,
       };
     }
@@ -197,7 +197,6 @@ export function buildGraphFromRows(rows: GraphCreatorRow[], rootDraft: string): 
   const canvasWidth = 700;
   const levelSpacing = 92;
   const topPadding = 52;
-  const bottomPadding = 48;
   const positions: Record<number, GraphLayoutNode> = {};
 
   const orderedLevels = [...levels.entries()].sort(([left], [right]) => left - right);
@@ -260,18 +259,6 @@ export function buildGraphFromRows(rows: GraphCreatorRow[], rootDraft: string): 
   const rootRight = rootLeft + rootSpanWidth;
 
   layoutNode(root, rootLeft, rootRight, 1);
-
-  const maxY = totalLevels > 0 ? topPadding + (totalLevels - 1) * levelSpacing : topPadding;
-  if (maxY > 500 - bottomPadding) {
-    return {
-      graph,
-      root,
-      positions: {},
-      levelCount: totalLevels,
-      error: "The graph can have at most 4 levels from the root.",
-      isValid: false,
-    };
-  }
 
   return {
     graph,

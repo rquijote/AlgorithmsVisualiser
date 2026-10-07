@@ -51,7 +51,7 @@ function GraphCreator({
         <div className="graph-creator-title-block">
           <div>
             <h2>{title}</h2>
-            <p>Build a one-way graph with a root node and up to 4 levels.</p>
+            <p>Build a one-way graph with a root node and up to 8 levels.</p>
           </div>
           <button
             className="controlpanel-btn-secondary graph-toggle-button"
@@ -77,13 +77,12 @@ function GraphCreator({
               value={root}
               onChange={(event) => setRoot(event.target.value)}
               aria-invalid={isRootInvalid}
-              placeholder="1"
             />
           </div>
 
           <div className="graph-creator-grid" role="list" aria-label="Adjacency list rows">
             {rows.map((row, index) => (
-              <div className="graph-row" key={`${index}-${row.node}`} role="listitem">
+              <div className="graph-row" key={index} role="listitem">
                 <div className="graph-field">
                   <label>Node</label>
                   <input
@@ -92,7 +91,6 @@ function GraphCreator({
                     className="dataset-input"
                     value={row.node}
                     onChange={(event) => updateRow(index, "node", event.target.value)}
-                    placeholder="1"
                   />
                 </div>
                 <div className="graph-field graph-neighbors-field">
@@ -102,7 +100,6 @@ function GraphCreator({
                     className="dataset-input"
                     value={row.neighbors}
                     onChange={(event) => updateRow(index, "neighbors", event.target.value)}
-                    placeholder="2, 3"
                   />
                 </div>
               </div>

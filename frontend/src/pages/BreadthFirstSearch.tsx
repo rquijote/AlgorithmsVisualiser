@@ -14,7 +14,7 @@ function BreadthFirstGraph() {
   const [highlight, setHighlight] = useState<number[]>();
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [bgHighlight, setBgHighlight] = useState<number[]>();
-  const [searchNode, setSearchNode] = useState<number>(1);
+  const [searchNode, setSearchNode] = useState<number>(0);
   const [speed, setSpeed] = useState(1000);   
   const [graphState, setGraphState] = useState<GraphCreatorResult>({
     graph: {},
@@ -96,6 +96,7 @@ function BreadthFirstGraph() {
         <div className="controls-container">
           <ControlPanel
             algorithmType="pathfind"
+            targetNum={searchNode}
             setTargetNum={setSearchNode}
             handleSearch={handleSearch}
             handleTraverse={handleTraverse}

@@ -96,6 +96,7 @@ function DepthFirstGraph() {
         <div className="controls-container">
           <ControlPanel
             algorithmType="pathfind"
+            targetNum={searchNode}
             setTargetNum={setSearchNode}
             handleSearch={handleSearch}
             handleTraverse={handleTraverse}

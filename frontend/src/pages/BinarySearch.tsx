@@ -17,7 +17,7 @@ function BinarySearch() {
   const [highlight, setHighlight] = useState<number[]>();
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [bgHighlight, setBgHighlight] = useState<number[]>();
-  const [targetNum, setTargetNum] = useState<number>(20);
+  const [targetNum, setTargetNum] = useState<number>(0);
   const [speed, setSpeed] = useState(1000);
   const [isDisabled, setIsDisabled] = useState(false);
   const playback = useLogPlayback(speed);

@@ -15,7 +15,7 @@ function LinearSearch() {
   const [list, setList] = useState<number[] | null>(initialNumbers);
   const [currentList, setCurrentList] = useState<number[]>(initialNumbers);
   const [highlight, setHighlight] = useState<number[]>();
-  const [targetNum, setTargetNum] = useState<number>(20);
+  const [targetNum, setTargetNum] = useState<number>(0);
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [speed, setSpeed] = useState(1000);
   const [isDisabled, setIsDisabled] = useState(false);
