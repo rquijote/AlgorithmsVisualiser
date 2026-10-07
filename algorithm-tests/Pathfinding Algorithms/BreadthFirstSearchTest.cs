@@ -60,7 +60,7 @@ public class BreadthFirstSearchTest
         string expectedString = "Target node 9 not found in graph.";
         List<Log> logList = bfs.GetLog();
         Log resultLog = bfs.GetSingleLog(logList.Count - 1);
-        Assert.AreEqual(expectedString, resultLog.Msg);
+        Assert.AreEqual(expectedString, resultLog.ActionMsg);
     }
 
     [TestMethod]

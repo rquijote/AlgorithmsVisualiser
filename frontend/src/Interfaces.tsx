@@ -1,6 +1,7 @@
 ﻿export interface Log {
     list: number[];
-    msg: string;
+    actionMsg: string;
+    explanation: string;
     extras?: {
         highlight?: number[];
         alertHighlight?: number[]; // For swaps or anything that deviates from normal.

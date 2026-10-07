@@ -59,7 +59,7 @@ public class DepthFirstSearchTest
         string expectedString = "Target node 9 not found in graph.";
         List<Log> logList = dfs.GetLog();
         Log resultLog = dfs.GetSingleLog(logList.Count-1);
-        Assert.AreEqual(expectedString, resultLog.Msg);
+        Assert.AreEqual(expectedString, resultLog.ActionMsg);
     }
 
     [TestMethod]

@@ -1,17 +1,19 @@
 import { useState } from "react";
 import type { Log, RecursiveCall } from "../Interfaces";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
 import Logtracker from "../components/LogTracker";
 import useLogPlayback from "../hooks/useLogPlayback";
 import RecursionCallTree from "../components/RecursionCallTree";
 import NumberDatasetControls from "../components/NumberDatasetControls";
+import { randomizeNumbers } from "../utils/randomizeNumbers";
 
 function MergeSort() {
-  const [list, setList] = useState<number[] | null>([5, 2, 9, 2, 8, 1, 5, 14]);
+  const [initialNumbers] = useState(() => randomizeNumbers(12));
+  const [list, setList] = useState<number[] | null>(initialNumbers);
   const [logMsg, setLogMsg] = useState<string[]>([]);
-  const [currentList, setCurrentList] = useState<number[]>([5, 2, 9, 2, 8, 1, 5, 14]);
+  const [logExplanation, setLogExplanation] = useState<string[]>([]);
+  const [currentList, setCurrentList] = useState<number[]>(initialNumbers);
   const [calls, setCalls] = useState<RecursiveCall[]>([]);
   const [activeCallId, setActiveCallId] = useState<number | null>(null);
   const [highlight, setHighlight] = useState<number[]>();
@@ -31,6 +33,7 @@ function MergeSort() {
     setHighlight([]);
     setAlertHighlight([]);
     setLogMsg([]);
+    setLogExplanation([]);
   }
 
   const handleSort = async () => {
@@ -54,7 +57,8 @@ function MergeSort() {
     setCurrentList(log.list);
     setHighlight(log.extras?.highlight || []);
     setAlertHighlight(log.extras?.alertHighlight || []);
-    setLogMsg((prev) => [...prev, log.msg]);
+    setLogMsg((prev) => [...prev, log.actionMsg]);
+    setLogExplanation((prev) => [...prev, log.explanation]);
 
     const extras = log.extras;
     if (extras?.callId === undefined || extras.phase === undefined) return;
@@ -70,7 +74,7 @@ function MergeSort() {
       segmentEnd: extras.segmentEnd ?? -1,
       segmentValues: extras.segmentValues ?? [],
       phase: extras.phase,
-      message: log.msg,
+      message: log.actionMsg,
     };
 
     setCalls((previousCalls) => {
@@ -96,6 +100,7 @@ function MergeSort() {
         setHighlight([]);
         setAlertHighlight([]);
         setLogMsg([]);
+        setLogExplanation([]);
       },
       applyLog
     );
@@ -105,50 +110,48 @@ function MergeSort() {
     <div className="container">
       <div className="visualiser-container">
         <h1>Merge Sort</h1>
-        <TransformWrapper>
-          <TransformComponent>
-            <div className="recursive-sort-layout">
-              <section className="recursion-array-panel">
-                <h2>Current Merge</h2>
-                <div className="recursion-array-values">
-                  {currentList.map((number, index) => (
-                    <div
-                      key={index}
-                      className={`sorting-numbox ${
-                        alertHighlight?.includes(index)
-                          ? "alert-highlight"
-                          : highlight?.includes(index)
-                          ? "highlight"
-                          : ""
-                      }`}
-                    >
-                      {number}
-                    </div>
-                  ))}
+        <div className="recursive-sort-layout recursive-sort-layout-compact">
+          <section className="recursion-array-panel">
+            <h2>Current Merge</h2>
+            <div className="recursion-array-values">
+              {currentList.map((number, index) => (
+                <div
+                  key={index}
+                  className={`sorting-numbox ${
+                    alertHighlight?.includes(index)
+                      ? "alert-highlight"
+                      : highlight?.includes(index)
+                      ? "highlight"
+                      : ""
+                  }`}
+                >
+                  {number}
                 </div>
-              </section>
-              <RecursionCallTree calls={calls} activeCallId={activeCallId} />
+              ))}
             </div>
-          </TransformComponent>
-        </TransformWrapper>
-        <Logtracker logMsg={logMsg} />
-        <ControlPanel
-          handleSort={handleSort}
-          algorithmType="sort"
-          speed={speed}
-          setSpeed={setSpeed}
-          isPlaying={playback.isPlaying}
-          hasPlayback={playback.hasPlayback}
-          frameIndex={playback.frameIndex}
-          totalFrames={playback.totalFrames}
-          canStep={playback.canStep}
-          canStepBackward={playback.canStepBackward}
-          onTogglePlayback={playback.togglePlayback}
-          onStepForward={playback.stepForward}
-          onStepBackward={playback.stepBackward}
-          isActionDisabled={isDisabled}
-        />
-        <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} maxNumberCount={12} />
+          </section>
+          <RecursionCallTree calls={calls} activeCallId={activeCallId} />
+        </div>
+        <Logtracker logMsg={logMsg} logExplanation={logExplanation} />
+        <div className="controls-container">
+          <ControlPanel
+            handleSort={handleSort}
+            algorithmType="sort"
+            speed={speed}
+            setSpeed={setSpeed}
+            isPlaying={playback.isPlaying}
+            hasPlayback={playback.hasPlayback}
+            frameIndex={playback.frameIndex}
+            totalFrames={playback.totalFrames}
+            canStep={playback.canStep}
+            canStepBackward={playback.canStepBackward}
+            onTogglePlayback={playback.togglePlayback}
+            onStepForward={playback.stepForward}
+            onStepBackward={playback.stepBackward}
+            isActionDisabled={isDisabled}
+          />
+          <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} maxNumberCount={12} />
+        </div>
       </div>
     </div>
   );

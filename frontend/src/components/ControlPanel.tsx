@@ -1,3 +1,4 @@
+import { useId, useState } from "react";
 import "../styles/controlPanel.css";
 
 interface PanelTypes {
@@ -41,6 +42,15 @@ function ControlPanel({
   onStepForward,
   onStepBackward,
 }: PanelTypes) {
+  const targetInputId = useId();
+  const [targetDraft, setTargetDraft] = useState(() => String(targetNum ?? ""));
+  const isTargetInvalid =
+    targetDraft.trim() === "" ||
+    targetNum === undefined ||
+    !Number.isInteger(targetNum) ||
+    targetNum < 0 ||
+    targetNum > 99;
+
   function renderPlaybackBtns() {
     return (
       <>
@@ -115,26 +125,43 @@ function ControlPanel({
         );
       case "search":
         return (
-          <div className="controlpanel-div">
-            <button className="controlpanel-btn-primary" onClick={handleSearch} disabled={isActionDisabled}>
-              Search
-            </button>
-            <div className="playback-controls">
-              {renderPlaybackBtns()}
-              <span className="frame-count">
-                Frame {frameIndex ?? 0} / {totalFrames ?? 0}
-              </span>
+          <div className="controlpanel-div search-controlpanel">
+            <div className="search-actions">
+              <button className="controlpanel-btn-primary" onClick={handleSearch} disabled={isActionDisabled}>
+                Search
+              </button>
+              <div className="playback-controls">
+                {renderPlaybackBtns()}
+                <span className="frame-count">
+                  Frame {frameIndex ?? 0} / {totalFrames ?? 0}
+                </span>
+              </div>
             </div>
-            <input
-              type="number"
-              className="controlpanel-input"
-              value={targetNum}
-              onChange={(e) =>
-                setTargetNum && setTargetNum(Number(e.target.value))
-              }
-              min={1}
-            />
-            {renderSpeedBtns()}
+            <div className="search-settings">
+              <div className="target-control">
+                <label htmlFor={targetInputId} className="control-label">Target</label>
+                <input
+                  id={targetInputId}
+                  type="text"
+                  inputMode="numeric"
+                  className={`dataset-input${isTargetInvalid ? " input-error" : ""}`}
+                  value={targetDraft}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setTargetDraft(value);
+                    setTargetNum?.(value.trim() === "" ? NaN : Number(value));
+                  }}
+                  aria-invalid={isTargetInvalid}
+                  aria-describedby={isTargetInvalid ? `${targetInputId}-error` : undefined}
+                />
+              </div>
+              {renderSpeedBtns()}
+            </div>
+            {isTargetInvalid && (
+              <span className="dataset-error" id={`${targetInputId}-error`} role="alert">
+                Enter a whole-number target from 0 to 99.
+              </span>
+            )}
           </div>
         );
       case "pathfind":

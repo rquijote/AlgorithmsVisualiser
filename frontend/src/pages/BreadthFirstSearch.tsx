@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { Log, PathfindingRequest } from "../Interfaces";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
 import Logtracker from "../components/LogTracker";
@@ -8,6 +7,7 @@ import useLogPlayback from "../hooks/useLogPlayback";
 
 function BreadthFirstGraph() {
   const [logMsg, setLogMsg] = useState<string[]>([]);
+  const [logExplanation, setLogExplanation] = useState<string[]>([]);
   const [highlight, setHighlight] = useState<number[]>();
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [bgHighlight, setBgHighlight] = useState<number[]>();
@@ -83,12 +83,14 @@ function BreadthFirstGraph() {
         setAlertHighlight([]);
         setBgHighlight([]);
         setLogMsg([]);
+        setLogExplanation([]);
       },
       (log) => {
         setHighlight(log.extras?.highlight || []);
         setAlertHighlight(log.extras?.alertHighlight || []);
         setBgHighlight(log.extras?.bgHighlight || []);
-        setLogMsg((prev) => [...prev, log.msg]);
+        setLogMsg((prev) => [...prev, log.actionMsg]);
+        setLogExplanation((prev) => [...prev, log.explanation]);
       }
     );
   }
@@ -97,84 +99,82 @@ function BreadthFirstGraph() {
     <div className="container">
       <div className="visualiser-container">
         <h1>Breadth First Search</h1>
-        <TransformWrapper>
-          <TransformComponent>
-            <div className="sorting-wrapper">
-              <svg width="700" height="500">
-                {Object.entries(graph).map(([from, toList]) =>
-                  toList.map((to) => {
-                    const fromPos = positions[Number(from)];
-                    const toPos = positions[to];
-                    return (
-                      <line
-                        key={`${from}-${to}`}
-                        x1={fromPos.x}
-                        y1={fromPos.y}
-                        x2={toPos.x}
-                        y2={toPos.y}
-                        stroke="black"
-                        strokeWidth={2}
-                      />
-                    );
-                  })
-                )}
-                {Object.entries(positions).map(([node, pos]) => (
-                  <g key={node}>
-                    <circle
-                      cx={pos.x}
-                      cy={pos.y}
-                      r={40}
-                      stroke="black"
-                      strokeWidth={2}
-                      className={
-                        alertHighlight?.includes(Number(node))
-                          ? "alert-highlight-node"
-                          : highlight?.includes(Number(node))
-                          ? "highlight-node"
-                          : bgHighlight?.includes(Number(node))
-                          ? "bg-highlight-node"
-                          : "normal-node"
-                      }
-                    />
-                    <text
-                      x={pos.x}
-                      y={pos.y}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fill={
-                        alertHighlight?.includes(Number(node)) ||
-                        highlight?.includes(Number(node))
-                          ? "white"
-                          : "black"
-                      }
-                      fontSize={22}
-                    >
-                      {node}
-                    </text>
-                  </g>
-                ))}
-              </svg>
-            </div>
-          </TransformComponent>
-        </TransformWrapper>
-        <Logtracker logMsg={logMsg} />
-        <ControlPanel
-          algorithmType="pathfind"
-          setTargetNum={setSearchNode}
-          handleSearch={handleSearch}
-          handleTraverse={handleTraverse}
-          speed={speed}               
-          setSpeed={setSpeed}          
-          isPlaying={playback.isPlaying}
-          hasPlayback={playback.hasPlayback}
-          frameIndex={playback.frameIndex}
-          totalFrames={playback.totalFrames}
-          canStep={playback.canStep}
-          canStepBackward={playback.canStepBackward}
-          onTogglePlayback={playback.togglePlayback}
-          onStepForward={playback.stepForward}
-          onStepBackward={playback.stepBackward}
-        />
+        <div className="sorting-wrapper">
+          <svg width="700" height="500">
+            {Object.entries(graph).map(([from, toList]) =>
+              toList.map((to) => {
+                const fromPos = positions[Number(from)];
+                const toPos = positions[to];
+                return (
+                  <line
+                    key={`${from}-${to}`}
+                    x1={fromPos.x}
+                    y1={fromPos.y}
+                    x2={toPos.x}
+                    y2={toPos.y}
+                    stroke="black"
+                    strokeWidth={2}
+                  />
+                );
+              })
+            )}
+            {Object.entries(positions).map(([node, pos]) => (
+              <g key={node}>
+                <circle
+                  cx={pos.x}
+                  cy={pos.y}
+                  r={40}
+                  stroke="black"
+                  strokeWidth={2}
+                  className={
+                    alertHighlight?.includes(Number(node))
+                      ? "alert-highlight-node"
+                      : highlight?.includes(Number(node))
+                      ? "highlight-node"
+                      : bgHighlight?.includes(Number(node))
+                      ? "bg-highlight-node"
+                      : "normal-node"
+                  }
+                />
+                <text
+                  x={pos.x}
+                  y={pos.y}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill={
+                    alertHighlight?.includes(Number(node)) ||
+                    highlight?.includes(Number(node))
+                      ? "white"
+                      : "black"
+                  }
+                  fontSize={22}
+                >
+                  {node}
+                </text>
+              </g>
+            ))}
+          </svg>
+        </div>
+        <Logtracker logMsg={logMsg} logExplanation={logExplanation} />
+        <div className="controls-container">
+          <ControlPanel
+            algorithmType="pathfind"
+            setTargetNum={setSearchNode}
+            handleSearch={handleSearch}
+            handleTraverse={handleTraverse}
+            speed={speed}               
+            setSpeed={setSpeed}          
+            isPlaying={playback.isPlaying}
+            hasPlayback={playback.hasPlayback}
+            frameIndex={playback.frameIndex}
+            totalFrames={playback.totalFrames}
+            canStep={playback.canStep}
+            canStepBackward={playback.canStepBackward}
+            onTogglePlayback={playback.togglePlayback}
+            onStepForward={playback.stepForward}
+            onStepBackward={playback.stepBackward}
+          />
+        </div>
       </div>
     </div>
   );

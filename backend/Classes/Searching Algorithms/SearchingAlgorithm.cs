@@ -19,9 +19,9 @@
         {
             _iterations++;
         }
-        public void AddToLog(List<int> logList, string msg, Dictionary<string, object> extras = null)
+        public void AddToLog(List<int> logList, string actionMsg, string explanation, Dictionary<string, object> extras = null)
         {
-            Log logItem = new Log(new List<int>(logList), msg, extras);
+            Log logItem = new Log(new List<int>(logList), actionMsg, explanation, extras);
             _log.Add(logItem);
         }
 

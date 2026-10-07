@@ -111,6 +111,45 @@
   font-weight: 600;
 }
 
+.search-controlpanel {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.search-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.search-actions .playback-controls {
+  flex-wrap: nowrap;
+  padding-right: 0;
+  border-right: 0;
+}
+
+.search-settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.target-control {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.target-control .dataset-input {
+  flex: 0 0 6rem;
+  width: 6rem;
+}
+
 .controlpanel-input {
     border: 1px solid #D3D3D3;
 }

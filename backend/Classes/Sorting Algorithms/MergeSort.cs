@@ -12,7 +12,8 @@
             AddCallLog(
                 sortedList,
                 sortedList,
-                $"Merge Sort Completed [{string.Join(", ", sortedList)}]",
+                "Merge Sort Completed.",
+                "Every split has been merged back into a sorted segment.",
                 "complete",
                 0,
                 0,
@@ -32,7 +33,8 @@
             AddCallLog(
                 list,
                 list,
-                $"Call #{callId} sorting segment [{string.Join(", ", list)}]",
+                $"Call #{callId} sorting segment.",
+                "This recursive call sorts one segment as part of the divide-and-merge process.",
                 "call",
                 depth,
                 segmentStart,
@@ -45,7 +47,8 @@
                 AddCallLog(
                     list,
                     list,
-                    $"Base case reached for segment [{string.Join(", ", list)}]",
+                    "Base case reached for segment.",
+                    "A segment with zero or one value is already sorted and cannot be split further.",
                     "base-case",
                     depth,
                     segmentStart,
@@ -60,7 +63,8 @@
             AddCallLog(
                 list,
                 list,
-                $"Splitting left side of list [{string.Join(", ", list)}]",
+                "Splitting left side of list.",
+                "The segment is divided into smaller pieces so each can be sorted independently.",
                 "descend-left",
                 depth,
                 segmentStart,
@@ -84,6 +88,7 @@
                 list,
                 list,
                 $"Returned from the left child to call #{callId}.",
+                "The left recursive call has finished, so this call can continue with the right segment.",
                 "return-left",
                 depth,
                 segmentStart,
@@ -93,7 +98,8 @@
             AddCallLog(
                 list,
                 list,
-                $"Splitting right side of list [{string.Join(", ", list)}]",
+                "Splitting right side of list.",
+                "The remaining half is split so it can be sorted independently as well.",
                 "descend-right",
                 depth,
                 segmentStart,
@@ -116,6 +122,7 @@
                 list,
                 list,
                 $"Returned from the right child to call #{callId}.",
+                "Both recursive calls have now produced sorted child segments.",
                 "return-right",
                 depth,
                 segmentStart,
@@ -129,7 +136,8 @@
             AddCallLog(
                 merged,
                 list,
-                $"Merging sorted children [{string.Join(", ", left)}] and [{string.Join(", ", right)}].",
+                "Merging sorted child segments.",
+                "Each child is sorted, so selecting the smaller next value builds a sorted result.",
                 "merge-start",
                 depth,
                 segmentStart,
@@ -143,6 +151,7 @@
                     merged.Count == 0 ? new List<int> { left[i], right[j] } : merged,
                     list,
                     $"Comparing {left[i]} (left) and {right[j]} (right)",
+                    "The smaller of the two next values must be added first to preserve ascending order.",
                     "compare",
                     depth,
                     segmentStart,
@@ -160,14 +169,11 @@
                     merged.Add(left[i]);
                     int indexInMerged = merged.Count - 1;
 
-                    var leftoverMessage = (i + 1 < left.Count)
-                        ? $"leftovers in left: {string.Join(", ", left.GetRange(i + 1, left.Count - (i + 1)))}. leftovers in right: {string.Join(", ", right.GetRange(j, right.Count - j))}"
-                        : "no more leftovers in right";
-
                     AddCallLog(
                         merged,
                         list,
-                        $"Adding {left[i]} from left, {leftoverMessage}",
+                        $"Adding {left[i]} from left",
+                        "The left value is less than or equal to the right value, so it comes next in ascending order.",
                         "merge-item",
                         depth,
                         segmentStart,
@@ -186,14 +192,11 @@
                     merged.Add(right[j]);
                     int indexInMerged = merged.Count - 1;
 
-                    var leftoverMessage = (j + 1 < right.Count)
-                        ? $"leftovers in left: {string.Join(", ", left.GetRange(i, left.Count - i))}. leftovers in right: {string.Join(", ", right.GetRange(j + 1, right.Count - (j + 1)))}"
-                        : "no more leftovers in right";
-
                     AddCallLog(
                         merged,
                         list,
-                        $"Adding {right[j]} from right, {leftoverMessage}",
+                        $"Adding {right[j]} from right",
+                        "The right value is smaller than the left value, so it comes next in ascending order.",
                         "merge-item",
                         depth,
                         segmentStart,
@@ -215,14 +218,11 @@
                 merged.Add(left[i]);
                 int indexInMerged = merged.Count - 1;
 
-                string leftoverMessage = (i + 1 < left.Count)
-                    ? $"leftovers in left: {string.Join(", ", left.GetRange(i + 1, left.Count - (i + 1)))}. leftovers in right: {string.Join(", ", right.GetRange(j, right.Count - j))}"
-                    : "no more leftovers in left";
-
                 AddCallLog(
                     merged,
                     list,
-                    $"Adding leftover {left[i]} from left, {leftoverMessage}",
+                    $"Adding leftover {left[i]} from left",
+                    "The right segment has no values left, so the already-sorted left remainder can be appended.",
                     "merge-item",
                     depth,
                     segmentStart,
@@ -243,14 +243,11 @@
                 merged.Add(right[j]);
                 int indexInMerged = merged.Count - 1;
 
-                string leftoverMessage = (j + 1 < right.Count && left.Count - i > 0)
-                    ? $"leftovers in left: {string.Join(", ", left.GetRange(i, left.Count - i))}. leftovers in right: {string.Join(", ", right.GetRange(j + 1, right.Count - (j + 1)))}"
-                    : "no more leftovers in right";
-
                 AddCallLog(
                     merged,
                     list,
-                    $"Adding leftover {right[j]} from right, {leftoverMessage}",
+                    $"Adding leftover {right[j]} from right",
+                    "The left segment has no values left, so the already-sorted right remainder can be appended.",
                     "merge-item",
                     depth,
                     segmentStart,
@@ -268,7 +265,8 @@
             AddCallLog(
                 merged,
                 list,
-                $"Finished sorting, merged result: [{string.Join(", ", merged)}]",
+                "Finished sorting the merged segment.",
+                "Every value from both children has been added in ascending order.",
                 "merge-complete",
                 depth,
                 segmentStart,
@@ -284,6 +282,7 @@
                 merged,
                 list,
                 $"Call #{callId} is returning its merged segment.",
+                "The merged segment is sorted and ready to be returned to its parent call.",
                 "return",
                 depth,
                 segmentStart,
@@ -298,6 +297,7 @@
             List<int> displayedList,
             List<int> segmentValues,
             string message,
+            string explanation,
             string phase,
             int depth,
             int segmentStart,
@@ -309,6 +309,7 @@
                 displayedList,
                 segmentValues,
                 message,
+                explanation,
                 phase,
                 depth,
                 segmentStart,
@@ -322,6 +323,7 @@
             List<int> displayedList,
             List<int> segmentValues,
             string message,
+            string explanation,
             string phase,
             int depth,
             int segmentStart,
@@ -349,7 +351,7 @@
                 }
             }
 
-            AddToLog(displayedList, message, extras);
+            AddToLog(displayedList, message, explanation, extras);
         }
     }
 }

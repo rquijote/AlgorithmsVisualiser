@@ -13,6 +13,7 @@
 
                 AddToLog(list,
                     $"Checking middle index: {mid}, value: {list[mid]}",
+                    "The middle value is checked so the sorted search range can be reduced by half.",
                     new Dictionary<string, object>
                     {
                         { "highlight", new List<int> { mid } },
@@ -23,6 +24,7 @@
                 {
                     AddToLog(list,
                         $"Found value: {number} at index: {mid}. Took {GetIterations()} iterations.",
+                        "The middle value equals the target, so the search is complete.",
                         new Dictionary<string, object>
                         {
                             { "alertHighlight", new List<int> { mid } }
@@ -34,6 +36,7 @@
                 {
                     AddToLog(list,
                         $"Value: {list[mid]} is smaller than {number}. Changing low: {low} to {mid + 1}",
+                        "Because the list is sorted and the middle value is below the target, the target can only be to its right.",
                         new Dictionary<string, object>
                         {
                             { "highlight", new List<int> { mid } },
@@ -45,6 +48,7 @@
                 {
                     AddToLog(list,
                         $"Value: {list[mid]} is larger than {number}. Changing high: {high} to {mid - 1}",
+                        "Because the list is sorted and the middle value is above the target, the target can only be to its left.",
                         new Dictionary<string, object>
                         {
                             { "highlight", new List<int> { mid } },
@@ -56,6 +60,7 @@
 
             AddToLog(list,
                 $"Couldn't find value: {number}",
+                "The remaining search range is empty, so no index can contain the target.",
                 new Dictionary<string, object>
                 {
                 });

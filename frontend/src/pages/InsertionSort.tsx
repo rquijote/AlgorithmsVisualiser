@@ -1,16 +1,18 @@
 import { useState } from "react";
 import type { Log } from "../Interfaces";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
 import Logtracker from "../components/LogTracker";
 import useLogPlayback from "../hooks/useLogPlayback";
 import NumberDatasetControls from "../components/NumberDatasetControls";
+import { randomizeNumbers } from "../utils/randomizeNumbers";
 
 function InsertionSort() {
   const [logMsg, setLogMsg] = useState<string[]>([]);
-  const [list, setList] = useState<number[] | null>([1, 5, 8, 9, 2, 4, 11, 6]);
-  const [currentList, setCurrentList] = useState<number[]>([1, 5, 8, 9, 2, 4, 11, 6]);
+  const [logExplanation, setLogExplanation] = useState<string[]>([]);
+  const [initialNumbers] = useState(() => randomizeNumbers(12));
+  const [list, setList] = useState<number[] | null>(initialNumbers);
+  const [currentList, setCurrentList] = useState<number[]>(initialNumbers);
   const [highlight, setHighlight] = useState<number[]>();
   const [alertHighlight, setAlertHighlight] = useState<number[]>();
   const [speed, setSpeed] = useState(1000); // speed state
@@ -26,6 +28,7 @@ function InsertionSort() {
     setHighlight([]);
     setAlertHighlight([]);
     setLogMsg([]);
+    setLogExplanation([]);
   }
 
   const handleSort = async () => {
@@ -53,12 +56,14 @@ function InsertionSort() {
         setHighlight([]);
         setAlertHighlight([]);
         setLogMsg([]);
+        setLogExplanation([]);
       },
       (log) => {
         setCurrentList(log.list);
         setHighlight(log.extras?.highlight || []);
         setAlertHighlight(log.extras?.alertHighlight || []);
-        setLogMsg((prev) => [...prev, log.msg]);
+        setLogMsg((prev) => [...prev, log.actionMsg]);
+        setLogExplanation((prev) => [...prev, log.explanation]);
       }
     );
   }
@@ -67,48 +72,46 @@ function InsertionSort() {
     <div className="container">
       <div className="visualiser-container">
         <h1>Insertion Sort</h1>
-        <TransformWrapper>
-          <TransformComponent>
-            <div className="sorting-wrapper">
-              <div className="sorting-div">
-                {currentList.map((number, idx) => (
-                  <div
-                    key={idx}
-                    className={`sorting-numbox ${
-                      alertHighlight?.includes(idx)
-                        ? "alert-highlight"
-                        : highlight?.includes(idx)
-                        ? "highlight"
-                        : ""
-                    }`}
-                  >
-                    {number}
-                  </div>
-                ))}
+        <div className="sorting-wrapper sorting-wrapper-compact">
+          <div className="sorting-div">
+            {currentList.map((number, idx) => (
+              <div
+                key={idx}
+                className={`sorting-numbox ${
+                  alertHighlight?.includes(idx)
+                    ? "alert-highlight"
+                    : highlight?.includes(idx)
+                    ? "highlight"
+                    : ""
+                }`}
+              >
+                {number}
               </div>
-            </div>
-          </TransformComponent>
-        </TransformWrapper>
-        <Logtracker logMsg={logMsg} />
+            ))}
+          </div>
+        </div>
+        <Logtracker logMsg={logMsg} logExplanation={logExplanation} />
 
         {/* Pass speed and setSpeed to ControlPanel */}
-        <ControlPanel
-          handleSort={handleSort}
-          algorithmType="sort"
-          speed={speed}
-          setSpeed={setSpeed}
-          isPlaying={playback.isPlaying}
-          hasPlayback={playback.hasPlayback}
-          frameIndex={playback.frameIndex}
-          totalFrames={playback.totalFrames}
-          canStep={playback.canStep}
-          canStepBackward={playback.canStepBackward}
-          onTogglePlayback={playback.togglePlayback}
-          onStepForward={playback.stepForward}
-          onStepBackward={playback.stepBackward}
-          isActionDisabled={isDisabled}
-        />
-        <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} maxNumberCount={12} />
+        <div className="controls-container">
+          <ControlPanel
+            handleSort={handleSort}
+            algorithmType="sort"
+            speed={speed}
+            setSpeed={setSpeed}
+            isPlaying={playback.isPlaying}
+            hasPlayback={playback.hasPlayback}
+            frameIndex={playback.frameIndex}
+            totalFrames={playback.totalFrames}
+            canStep={playback.canStep}
+            canStepBackward={playback.canStepBackward}
+            onTogglePlayback={playback.togglePlayback}
+            onStepForward={playback.stepForward}
+            onStepBackward={playback.stepBackward}
+            isActionDisabled={isDisabled}
+          />
+          <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} maxNumberCount={12} />
+        </div>
       </div>
     </div>
   );

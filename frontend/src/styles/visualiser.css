@@ -10,6 +10,42 @@
     flex-direction: row;
 }
 
+.visualiser-container {
+    box-sizing: border-box;
+    width: min(1000px, calc(100vw - 32px));
+    max-width: 100%;
+    min-width: 0;
+}
+
+.controls-container {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    min-width: 0;
+    padding: 1rem;
+}
+
+.controls-container .controlpanel-div,
+.controls-container .dataset-controls {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+}
+
+.controls-container input {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.controls-container .playback-controls,
+.controls-container .speed-controls {
+    min-width: 0;
+    max-width: 100%;
+}
+
 .sorting-div {
     display: flex;
     font-size: 25px;
@@ -25,6 +61,10 @@
     border: 1px solid #D3D3D3;
     display: relative;
     border-radius: 4px;
+}
+
+.sorting-wrapper-compact {
+    height: 400px;
 }
 
 .highlight {
@@ -59,6 +99,8 @@
 }
 
 .algorithm-step-message {
+    display: grid;
+    gap: 0.25rem;
     box-sizing: border-box;
     width: min(1000px, calc(100vw - 32px));
     min-height: 2.5rem;
@@ -69,6 +111,20 @@
     background: #f3f7fa;
     color: #333;
     line-height: 1.35;
+}
+
+.algorithm-step-action,
+.algorithm-step-explanation {
+    margin: 0;
+}
+
+.algorithm-step-action {
+    color: #155a91;
+    font-weight: 600;
+}
+
+.algorithm-step-explanation {
+    color: #475569;
 }
 
 .dataset-controls {
@@ -94,11 +150,13 @@
     font: inherit;
 }
 
-.dataset-input.input-error {
+.dataset-input.input-error,
+.controlpanel-input.input-error {
     border: 2px solid #a4262c;
 }
 
-.dataset-input.input-error:focus {
+.dataset-input.input-error:focus,
+.controlpanel-input.input-error:focus {
     outline-color: #a4262c;
 }
 
@@ -141,6 +199,10 @@
     gap: 12px;
     width: min(1000px, calc(100vw - 32px));
     height: 500px;
+}
+
+.recursive-sort-layout-compact {
+    height: 400px;
 }
 
 .recursion-array-panel,

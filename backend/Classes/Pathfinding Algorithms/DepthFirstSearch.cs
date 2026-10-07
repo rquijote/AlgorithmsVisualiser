@@ -16,7 +16,9 @@
 
             if (!graph.ContainsKey(startNode))
             {
-                AddToLog(result, "No starting node found.", new Dictionary<string, object>());
+                AddToLog(result, "No starting node found.",
+                    $"Node {startNode} is not a key in the graph, so traversal cannot begin.",
+                    new Dictionary<string, object>());
                 return result;
             }
 
@@ -30,7 +32,8 @@
 
                 AddToLog(
                     result,
-                    $"Adding {current} to result: [{string.Join(", ", result)}]",
+                    $"Adding {current} to result.",
+                    "The most recently pushed node is visited first, following a depth-first path before backtracking.",
                     new Dictionary<string, object> {
                         { "highlight", visited.ToList() },
                         { "bgHighlight", stack.ToList() }
@@ -41,6 +44,7 @@
                     AddToLog(
                         result,
                         $"Target node {targetNode} found. Ending search.",
+                        "The node being visited equals the target, so no further nodes need to be explored.",
                         new Dictionary<string, object> {
                             { "highlight", visited.ToList() },
                             { "alertHighlight", new List<int> { targetNode.Value } },
@@ -58,6 +62,7 @@
                         AddToLog(
                             result,
                             $"Pushed node {neighbor} onto to visit stack",
+                            $"Node {neighbor} is adjacent to the current node and is neither visited nor already on the stack.",
                             new Dictionary<string, object> {
                                 { "highlight", visited.ToList() },
                                 { "bgHighlight", stack.Reverse().ToList() }
@@ -68,7 +73,8 @@
 
             AddToLog(
                 result,
-                $"Completed traversal: [{string.Join(", ", result)}]",
+                "Completed traversal.",
+                "The stack is empty, so every reachable node has been visited.",
                 new Dictionary<string, object> {
                     { "highlight", visited.ToList() },
                     { "bgHighlight", new List<int>() }
@@ -79,6 +85,7 @@
                 AddToLog(
                     result,
                     $"Target node {targetNode.Value} not found in graph.",
+                    "The stack became empty without visiting the target, so it is not reachable from the start node.",
                     new Dictionary<string, object>());
             }
 

@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import "../styles/visualiser.css";
+import { randomizeNumbers } from "../utils/randomizeNumbers";
 
 interface NumberDatasetControlsProps {
   numbers: number[] | null;
@@ -48,7 +49,7 @@ function NumberDatasetControls({
   }
 
   function handleRandomize() {
-    const values = Array.from({ length: 8 }, () => Math.floor(Math.random() * 99) + 1);
+    const values = randomizeNumbers(maxNumberCount);
     const nextNumbers = sortNumbers
       ? [...values].sort((left, right) => left - right)
       : values;

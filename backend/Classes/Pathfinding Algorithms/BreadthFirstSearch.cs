@@ -16,7 +16,9 @@
 
             if (!graph.ContainsKey(startNode))
             {
-                AddToLog(result, "No starting node found.", new Dictionary<string, object>());
+                AddToLog(result, "No starting node found.",
+                    $"Node {startNode} is not a key in the graph, so traversal cannot begin.",
+                    new Dictionary<string, object>());
                 return result;
             }
 
@@ -30,7 +32,8 @@
 
                 AddToLog(
                     result,
-                    $"Adding {current} to result: [{string.Join(", ", result)}]",
+                    $"Adding {current} to result.",
+                    "The next queued node is visited first, preserving breadth-first order by distance from the start.",
                     new Dictionary<string, object> {
                         { "highlight", visited.ToList() },
                         { "bgHighlight", queue.ToList() }
@@ -41,6 +44,7 @@
                     AddToLog(
                         result,
                         $"Target node {targetNode} found. Ending search.",
+                        "The node being visited equals the target, so no further nodes need to be explored.",
                         new Dictionary<string, object> {
                             { "highlight", visited.ToList() },
                             { "alertHighlight", new List<int> { current } },
@@ -57,7 +61,8 @@
 
                         AddToLog(
                             result,
-                            $"Node {neighbor} added to queue (to visit next): [{string.Join(", ", queue)}]",
+                            $"Node {neighbor} added to queue (to visit next).",
+                            $"Node {neighbor} is adjacent to the current node and is neither visited nor already queued.",
                             new Dictionary<string, object> {
                                 { "highlight", visited.ToList() },
                                 { "bgHighlight", queue.ToList() }
@@ -68,7 +73,8 @@
 
             AddToLog(
                 result,
-                $"Completed traversal: [{string.Join(", ", result)}]",
+                "Completed traversal.",
+                "The queue is empty, so every reachable node has been visited.",
                 new Dictionary<string, object> {
                     { "highlight", visited.ToList() },
                     { "bgHighlight", new List<int>() }
@@ -79,6 +85,7 @@
                 AddToLog(
                     result,
                     $"Target node {targetNode.Value} not found in graph.",
+                    "The queue became empty without visiting the target, so it is not reachable from the start node.",
                     new Dictionary<string, object>());
             }
 
