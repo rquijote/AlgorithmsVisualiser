@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Log, SearchRequest } from "../Interfaces";
 import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
+import CompareWithButton from "../components/CompareWithButton";
 import Logtracker from "../components/LogTracker";
 import useLogPlayback from "../hooks/useLogPlayback";
 import NumberDatasetControls from "../components/NumberDatasetControls";
@@ -130,7 +131,10 @@ function LinearSearch() {
             onStepBackward={playback.stepBackward}
             isActionDisabled={isDisabled}
           />
-          <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} maxNumberCount={12} />
+          <div className="compare-controls-row">
+            <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} maxNumberCount={12} />
+            <CompareWithButton to="/compare-algorithms?mode=search&left=linear-search" />
+          </div>
         </div>
       </div>
     </div>

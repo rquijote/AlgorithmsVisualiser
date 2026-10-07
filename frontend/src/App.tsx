@@ -59,6 +59,14 @@ function App() {
             </NavLink>
           </div>
         </div>
+        <div className="home-section">
+          <h2 className="home-h2">Compare</h2>
+          <div className="home-button-grid">
+            <NavLink className="home-alg-btn" to="/compare-algorithms">
+              Compare Algorithms
+            </NavLink>
+          </div>
+        </div>
       </div>
     </div>
   );

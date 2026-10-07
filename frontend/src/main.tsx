@@ -11,6 +11,7 @@ import LinearSearch from "./pages/LinearSearch";
 import BinarySearch from "./pages/BinarySearch";
 import DepthFirstSearch from "./pages/DepthFirstSearch";
 import BreadthFirstSearch from "./pages/BreadthFirstSearch";
+import CompareAlgorithms from "./pages/CompareAlgorithms";
 import Header from "./components/Header";
 import ResponsiveWrapper from "./components/ResponsiveWrapper";
 import "./styles/main.css"
@@ -90,6 +91,14 @@ createRoot(document.getElementById("root")!).render(
           element={
             <ResponsiveWrapper>
               <BreadthFirstSearch />
+            </ResponsiveWrapper>
+          }
+        />
+        <Route
+          path="/compare-algorithms"
+          element={
+            <ResponsiveWrapper>
+              <CompareAlgorithms />
             </ResponsiveWrapper>
           }
         />

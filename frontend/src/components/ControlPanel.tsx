@@ -170,6 +170,7 @@ function ControlPanel({
             <button
               className="controlpanel-btn-primary"
               onClick={handleTraverse}
+              disabled={isActionDisabled}
             >
               Traverse
             </button>
@@ -182,6 +183,7 @@ function ControlPanel({
             <button
               className="controlpanel-btn-secondary"
               onClick={handleSearch}
+              disabled={isActionDisabled}
             >
               Search
             </button>

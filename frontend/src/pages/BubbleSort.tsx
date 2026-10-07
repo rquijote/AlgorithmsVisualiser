@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Log } from "../Interfaces";
 import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
+import CompareWithButton from "../components/CompareWithButton";
 import Logtracker from "../components/LogTracker";
 import useLogPlayback from "../hooks/useLogPlayback";
 import NumberDatasetControls from "../components/NumberDatasetControls";
@@ -110,7 +111,10 @@ function BubbleSort() {
                 onStepBackward={playback.stepBackward}
                 isActionDisabled={isDisabled}
               />
-              <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} maxNumberCount={12} />
+              <div className="compare-controls-row">
+                <NumberDatasetControls numbers={list} onNumbersChange={handleNumbersChange} maxNumberCount={12} />
+                <CompareWithButton to="/compare-algorithms?mode=sort&left=bubble-sort" />
+              </div>
             </div>
           </div>
         </div>

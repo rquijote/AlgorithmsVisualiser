@@ -2,8 +2,11 @@ import { useState } from "react";
 import type { Log, PathfindingRequest } from "../Interfaces";
 import "../styles/visualiser.css";
 import ControlPanel from "../components/ControlPanel";
+import GraphCreator from "../components/GraphCreator";
+import GraphPreview from "../components/GraphPreview";
 import Logtracker from "../components/LogTracker";
 import useLogPlayback from "../hooks/useLogPlayback";
+import type { GraphCreatorResult } from "../utils/graphCreator";
 
 function BreadthFirstGraph() {
   const [logMsg, setLogMsg] = useState<string[]>([]);
@@ -13,35 +16,19 @@ function BreadthFirstGraph() {
   const [bgHighlight, setBgHighlight] = useState<number[]>();
   const [searchNode, setSearchNode] = useState<number>(1);
   const [speed, setSpeed] = useState(1000);   
+  const [graphState, setGraphState] = useState<GraphCreatorResult>({
+    graph: {},
+    root: null,
+    positions: {},
+    levelCount: 0,
+    error: "",
+    isValid: false,
+  });
   const playback = useLogPlayback(speed);
 
-  const graph: Record<number, number[]> = {
-    1: [2, 7],
-    2: [3, 4, 5],
-    3: [],
-    4: [],
-    5: [6],
-    6: [],
-    7: [8],
-    8: [9],
-    9: [],
-  };
-
-  const positions: Record<number, { x: number; y: number }> = {
-    1: { x: 350, y: 60 },
-    2: { x: 180, y: 180 },
-    3: { x: 90, y: 300 },
-    4: { x: 180, y: 300 },
-    5: { x: 270, y: 300 },
-    6: { x: 270, y: 400 },
-    7: { x: 520, y: 180 },
-    8: { x: 440, y: 300 },
-    9: { x: 440, y: 400 },
-  };
-
   const pathfindingRequest: PathfindingRequest = {
-    graph,
-    startNode: 1,
+    graph: graphState.graph,
+    startNode: graphState.root ?? 1,
     targetNode: searchNode,
   };
 
@@ -99,62 +86,12 @@ function BreadthFirstGraph() {
     <div className="container">
       <div className="visualiser-container">
         <h1>Breadth First Search</h1>
-        <div className="sorting-wrapper">
-          <svg width="700" height="500">
-            {Object.entries(graph).map(([from, toList]) =>
-              toList.map((to) => {
-                const fromPos = positions[Number(from)];
-                const toPos = positions[to];
-                return (
-                  <line
-                    key={`${from}-${to}`}
-                    x1={fromPos.x}
-                    y1={fromPos.y}
-                    x2={toPos.x}
-                    y2={toPos.y}
-                    stroke="black"
-                    strokeWidth={2}
-                  />
-                );
-              })
-            )}
-            {Object.entries(positions).map(([node, pos]) => (
-              <g key={node}>
-                <circle
-                  cx={pos.x}
-                  cy={pos.y}
-                  r={40}
-                  stroke="black"
-                  strokeWidth={2}
-                  className={
-                    alertHighlight?.includes(Number(node))
-                      ? "alert-highlight-node"
-                      : highlight?.includes(Number(node))
-                      ? "highlight-node"
-                      : bgHighlight?.includes(Number(node))
-                      ? "bg-highlight-node"
-                      : "normal-node"
-                  }
-                />
-                <text
-                  x={pos.x}
-                  y={pos.y}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  fill={
-                    alertHighlight?.includes(Number(node)) ||
-                    highlight?.includes(Number(node))
-                      ? "white"
-                      : "black"
-                  }
-                  fontSize={22}
-                >
-                  {node}
-                </text>
-              </g>
-            ))}
-          </svg>
-        </div>
+        <GraphPreview
+          graphState={graphState}
+          highlight={highlight}
+          alertHighlight={alertHighlight}
+          bgHighlight={bgHighlight}
+        />
         <Logtracker logMsg={logMsg} logExplanation={logExplanation} />
         <div className="controls-container">
           <ControlPanel
@@ -162,6 +99,7 @@ function BreadthFirstGraph() {
             setTargetNum={setSearchNode}
             handleSearch={handleSearch}
             handleTraverse={handleTraverse}
+            isActionDisabled={!graphState.isValid}
             speed={speed}               
             setSpeed={setSpeed}          
             isPlaying={playback.isPlaying}
@@ -175,6 +113,7 @@ function BreadthFirstGraph() {
             onStepBackward={playback.stepBackward}
           />
         </div>
+        <GraphCreator onChange={setGraphState} title="Graph Creator" />
       </div>
     </div>
   );
